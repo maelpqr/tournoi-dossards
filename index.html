@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>🏅 Tournoi des Dossards</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a; --border: #2e3350;
+  --yellow: #F5C400; --green: #22c55e; --red: #ef4444;
+  --text: #f0f0f0; --muted: #7a7f9a; --radius: 10px;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top,0px);
+  padding-bottom: env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit;margin:0;padding:0}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+header{background:var(--surface);border-bottom:2px solid var(--yellow);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:env(safe-area-inset-top,0px);z-index:100}
+header h1{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.5rem;letter-spacing:.04em;color:var(--yellow);text-transform:uppercase}
+.header-meta{font-size:.8rem;color:var(--muted);text-align:right}
+.header-meta strong{color:var(--text)}
+
+nav{display:flex;gap:6px;padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto}
+nav button{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;padding:6px 16px;border-radius:20px;border:1.5px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .15s}
+nav button.active{background:var(--yellow);border-color:var(--yellow);color:#000}
+nav button:hover:not(.active){border-color:var(--yellow);color:var(--yellow)}
+
+main{padding:24px 20px;max-width:860px;margin:0 auto}
+.section{display:none}.section.visible{display:block}
+
+.banner{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:14px}
+.banner-icon{font-size:2rem}
+.banner-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.1rem;text-transform:uppercase;color:var(--yellow)}
+.banner-sub{font-size:.85rem;color:var(--muted);margin-top:2px}
+
+.duels-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.6rem;text-transform:uppercase;color:var(--yellow);margin-bottom:16px;letter-spacing:.03em}
+.duels-grid{display:grid;grid-template-columns:1fr;gap:16px}
+
+.duel-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color .2s}
+.duel-card.voted{border-color:var(--yellow)}
+.duel-header{background:var(--surface2);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.8rem;text-transform:uppercase;color:var(--muted);letter-spacing:.07em;display:flex;justify-content:space-between;align-items:center}
+.duel-voted-badge{font-size:.7rem;background:var(--yellow);color:#000;padding:2px 8px;border-radius:10px;font-weight:700}
+.duel-body{display:grid;grid-template-columns:1fr auto 1fr;align-items:stretch}
+.duel-side{display:flex;flex-direction:column;align-items:center;padding:14px 10px;cursor:pointer;transition:background .15s;position:relative}
+.duel-side:hover:not(.disabled){background:rgba(245,196,0,.06)}
+.duel-side.my-pick{background:rgba(245,196,0,.1)}
+.duel-side.disabled{cursor:default}
+.duel-photo{width:100%;max-width:160px;aspect-ratio:3/4;object-fit:cover;border-radius:6px;background:var(--surface2);display:block}
+.duel-photo-placeholder{width:100%;max-width:160px;aspect-ratio:3/4;background:var(--surface2);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:2.5rem}
+.duel-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.95rem;text-align:center;margin-top:10px;color:var(--text)}
+.duel-vote-count{font-size:.78rem;color:var(--muted);margin-top:4px}
+.vote-check{position:absolute;top:10px;right:10px;width:26px;height:26px;background:var(--yellow);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:900;color:#000}
+.duel-vs{display:flex;align-items:center;justify-content:center;padding:0 6px;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.1rem;color:var(--border)}
+.duel-action{padding:12px 14px;border-top:1px solid var(--border);text-align:center}
+
+.waiting-state{text-align:center;padding:60px 20px;color:var(--muted)}
+.waiting-state .big-icon{font-size:3rem;margin-bottom:16px}
+.waiting-state h2{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.3rem;text-transform:uppercase;color:var(--text);margin-bottom:8px}
+
+/* AUTH */
+.auth-box{max-width:400px;margin:40px auto;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:28px}
+.auth-box h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.4rem;text-transform:uppercase;color:var(--yellow);margin-bottom:6px}
+.auth-box p{font-size:.85rem;color:var(--muted);margin-bottom:20px;line-height:1.5}
+.input-field{width:100%;padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Barlow',sans-serif;font-size:.9rem;margin-bottom:10px;outline:none}
+.input-field:focus{border-color:var(--yellow)}
+.auth-tabs{display:flex;gap:6px;margin-bottom:20px}
+.auth-tab{flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;font-size:.85rem;cursor:pointer}
+.auth-tab.active{background:var(--yellow);border-color:var(--yellow);color:#000}
+
+/* BRACKET */
+.bracket-wrap{overflow-x:auto}
+.bracket{display:flex;gap:0;align-items:flex-start;min-width:max-content;padding-bottom:20px}
+.bracket-round{display:flex;flex-direction:column}
+.bracket-round-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.75rem;text-transform:uppercase;color:var(--muted);letter-spacing:.07em;text-align:center;padding:6px 10px 10px}
+.bracket-slots{display:flex;flex-direction:column;flex:1}
+.bracket-pair{display:flex;flex-direction:column;justify-content:center;flex:1;padding:4px 0}
+.bracket-entry{display:flex;align-items:center;gap:6px;background:var(--surface);border:1.5px solid var(--border);border-radius:6px;padding:6px 10px;margin:2px 8px;min-width:120px;font-size:.78rem;white-space:nowrap}
+.bracket-entry.winner{border-color:var(--yellow);background:rgba(245,196,0,.08)}
+.bracket-entry.empty{border-style:dashed;color:var(--muted)}
+.bracket-entry img{width:28px;height:28px;object-fit:cover;border-radius:4px;background:var(--surface2)}
+.bracket-entry-name{font-weight:500;color:var(--text)}
+
+/* ADMIN */
+.admin-section h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.5rem;text-transform:uppercase;color:var(--yellow);margin-bottom:16px}
+.admin-grid{display:grid;gap:12px}
+.admin-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 18px}
+.admin-card h3{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;text-transform:uppercase;color:var(--text);margin-bottom:10px}
+.upload-zone{border:2px dashed var(--border);border-radius:8px;padding:28px;text-align:center;cursor:pointer;transition:border-color .2s;display:block}
+.upload-zone:hover{border-color:var(--yellow)}
+.upload-zone input{display:none}
+.upload-zone p{color:var(--muted);font-size:.85rem;margin-top:8px}
+.upload-zone .icon{font-size:2rem}
+.photos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-top:12px}
+.photo-thumb{position:relative;aspect-ratio:3/4}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;border-radius:6px;background:var(--surface2);display:block}
+.photo-thumb .label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.7);font-size:.6rem;padding:2px 4px;text-align:center;border-radius:0 0 6px 6px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.photo-thumb .del-btn{position:absolute;top:3px;right:3px;background:var(--red);border:none;border-radius:50%;width:18px;height:18px;font-size:.6rem;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:900}
+
+.btn-primary{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.95rem;text-transform:uppercase;letter-spacing:.05em;padding:10px 24px;border-radius:8px;border:none;background:var(--yellow);color:#000;cursor:pointer;transition:opacity .15s;display:inline-flex;align-items:center;gap:8px}
+.btn-primary:hover{opacity:.85}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-danger{background:var(--red);color:#fff}
+.btn-secondary{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9rem;text-transform:uppercase;letter-spacing:.05em;padding:8px 18px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text);cursor:pointer;transition:all .15s}
+.btn-secondary:hover{border-color:var(--yellow);color:var(--yellow)}
+
+.info-text{font-size:.83rem;color:var(--muted);line-height:1.5}
+.progress-bar{height:6px;background:var(--border);border-radius:3px;margin:12px 0 6px;overflow:hidden}
+.progress-fill{height:100%;background:var(--yellow);border-radius:3px;transition:width .3s}
+.stat{font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;color:var(--yellow)}
+.stat-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.stats-row{display:flex;gap:24px;margin-bottom:16px;flex-wrap:wrap}
+.results-list{display:grid;gap:8px;margin-top:12px}
+.result-row{display:flex;align-items:center;gap:10px;background:var(--surface2);border-radius:8px;padding:8px 12px;font-size:.82rem;flex-wrap:wrap}
+.result-row img{width:32px;height:32px;object-fit:cover;border-radius:4px;background:var(--surface);flex-shrink:0}
+.result-row .r-name{flex:1;font-weight:500;min-width:60px}
+.result-row .r-votes{font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--yellow);flex-shrink:0}
+
+.champion-banner{background:linear-gradient(135deg,rgba(245,196,0,.15) 0%,rgba(245,196,0,.05) 100%);border:2px solid var(--yellow);border-radius:var(--radius);padding:28px;text-align:center;margin-bottom:24px}
+.champion-banner h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:2rem;text-transform:uppercase;color:var(--yellow);letter-spacing:.05em}
+.champion-banner img{width:120px;height:160px;object-fit:cover;border-radius:8px;margin:16px auto;display:block;border:3px solid var(--yellow)}
+.champion-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.4rem;color:var(--text)}
+
+.user-bar{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;font-size:.82rem}
+.user-bar .email{color:var(--muted)}
+.user-bar .logout{background:transparent;border:1px solid var(--border);border-radius:6px;padding:3px 10px;color:var(--muted);cursor:pointer;font-size:.75rem;font-family:'Barlow',sans-serif}
+.user-bar .logout:hover{border-color:var(--red);color:var(--red)}
+
+.loading{text-align:center;padding:60px 20px;color:var(--muted);font-size:.9rem}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--yellow);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);left:50%;transform:translateX(-50%);background:var(--surface2);border:1.5px solid var(--yellow);color:var(--text);padding:10px 22px;border-radius:24px;font-size:.85rem;font-weight:500;z-index:999;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+@media(min-width:600px){
+  .duels-grid{grid-template-columns:1fr 1fr}
+  .duel-photo{max-width:140px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏅 Tournoi des Dossards</h1>
+  <div class="header-meta">
+    <strong id="round-label">–</strong><br>
+    <span id="round-status">Chargement…</span>
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('vote',this)">Voter</button>
+  <button onclick="showTab('bracket',this)">Bracket</button>
+  <button id="admin-btn" onclick="showTab('admin',this)" style="display:none">⚙️ Admin</button>
+</nav>
+
+<main>
+  <div class="section visible" id="tab-vote">
+    <div class="loading" id="vote-loading"><div class="spinner"></div>Chargement…</div>
+    <div id="vote-content" style="display:none"></div>
+  </div>
+  <div class="section" id="tab-bracket">
+    <div class="loading" id="bracket-loading"><div class="spinner"></div>Chargement…</div>
+    <div id="bracket-content" style="display:none" class="bracket-wrap"></div>
+  </div>
+  <div class="section" id="tab-admin">
+    <div id="admin-content"></div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════
+//  CONFIG — tes clés Supabase
+// ════════════════════════════════════════════
+const SUPABASE_URL  = 'https://kjhvciovfpkoeocanrnq.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqaHZjaW92ZnBrb2VvY2Fucm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzU4MTksImV4cCI6MjEwODAxMTgxOX0.OsN_YK_4mrORrKuOs31yRPcwn36b1_A_1Mk7yJHjtN0';
+
+
+const ADMIN_EMAIL = 'mael.paquier@gmail.com';
+
+// ════════════════════════════════════════════
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let currentUser = null;
+let tournamentState = null;
+let myVotes = {}; // duelId -> 'a' | 'b'
+let realtimeSub = null;
+
+const ROUNDS = ['64e de finale','32e de finale','16e de finale','Quart de finale','Demi-finale','Finale'];
+
+// ─── BOOT ───────────────────────────────────
+(async () => {
+  // Auth state listener
+  sb.auth.onAuthStateChange(async (event, session) => {
+    currentUser = session?.user ?? null;
+    if (currentUser) {
+      await loadMyVotes();
+      if (isAdmin()) document.getElementById('admin-btn').style.display = '';
+    } else {
+      document.getElementById('admin-btn').style.display = 'none';
+    }
+    renderCurrentTab();
+  });
+
+  // Load initial session
+  const { data: { session } } = await sb.auth.getSession();
+  currentUser = session?.user ?? null;
+  if (currentUser) {
+    await loadMyVotes();
+    if (isAdmin()) document.getElementById('admin-btn').style.display = '';
+  }
+
+  // Load tournament + subscribe
+  await loadTournament();
+  subscribeRealtime();
+})();
+
+function isAdmin() {
+  return currentUser?.email === ADMIN_EMAIL;
+}
+
+// ─── REALTIME ───────────────────────────────
+function subscribeRealtime() {
+  if (realtimeSub) sb.removeChannel(realtimeSub);
+  realtimeSub = sb.channel('tournament')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'tournament' }, async () => {
+      await loadTournament();
+      renderCurrentTab();
+    })
+    .subscribe();
+}
+
+async function loadTournament() {
+  const { data, error } = await sb.from('tournament').select('*').eq('id', 1).single();
+  if (data) {
+    tournamentState = data;
+    updateHeader();
+  }
+}
+
+async function loadMyVotes() {
+  if (!currentUser) return;
+  const { data } = await sb.from('votes').select('duel_id, side').eq('user_id', currentUser.id);
+  myVotes = {};
+  (data || []).forEach(v => myVotes[v.duel_id] = v.side);
+}
+
+// ─── TABS ────────────────────────────────────
+let currentTab = 'vote';
+function showTab(name, btn) {
+  currentTab = name;
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('visible');
+  if (btn) btn.classList.add('active');
+  renderCurrentTab();
+}
+function renderCurrentTab() {
+  if (currentTab === 'vote') renderVote();
+  else if (currentTab === 'bracket') renderBracket();
+  else if (currentTab === 'admin') renderAdmin();
+  updateHeader();
+}
+
+// ─── HEADER ─────────────────────────────────
+function updateHeader() {
+  if (!tournamentState) { document.getElementById('round-label').textContent = 'Pas démarré'; return; }
+  const round = tournamentState.current_round || 0;
+  const duels = tournamentState.duels || [];
+  document.getElementById('round-label').textContent = ROUNDS[round] || `Tour ${round+1}`;
+  const phase = tournamentState.phase;
+  if (phase === 'voting') {
+    const active = duels.filter(d => totalVotes(d) > 0).length;
+    document.getElementById('round-status').textContent = `${active}/${duels.length} duels avec votes`;
+  } else if (phase === 'done') {
+    document.getElementById('round-status').textContent = '🏆 Terminé !';
+  } else {
+    document.getElementById('round-status').textContent = 'En attente…';
+  }
+}
+
+// ─── AUTH FORM ───────────────────────────────
+function renderAuthForm(containerId, message) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = `
+    <div class="auth-box">
+      <h2>Connexion requise</h2>
+      <p>${message || 'Connecte-toi pour voter. Un email suffit, pas besoin de compte Claude.'}</p>
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login')">Se connecter</button>
+        <button class="auth-tab" onclick="switchAuthTab('signup')">S'inscrire</button>
+      </div>
+      <div id="auth-form-inner">
+        <input class="input-field" id="auth-email" type="email" placeholder="ton@email.com">
+        <input class="input-field" id="auth-password" type="password" placeholder="Mot de passe">
+        <button class="btn-primary" style="width:100%;justify-content:center;margin-top:4px" onclick="doAuth('login')">Se connecter</button>
+      </div>
+      <p class="info-text" style="margin-top:12px" id="auth-msg"></p>
+    </div>`;
+}
+
+let authMode = 'login';
+function switchAuthTab(mode) {
+  authMode = mode;
+  document.querySelectorAll('.auth-tab').forEach((b,i) => b.classList.toggle('active', (i===0&&mode==='login')||(i===1&&mode==='signup')));
+  const btn = document.querySelector('#auth-form-inner .btn-primary');
+  if (btn) btn.textContent = mode === 'login' ? 'Se connecter' : "S'inscrire";
+  if (btn) btn.setAttribute('onclick', `doAuth('${mode}')`);
+}
+
+async function doAuth(mode) {
+  const email = document.getElementById('auth-email')?.value?.trim();
+  const password = document.getElementById('auth-password')?.value;
+  const msg = document.getElementById('auth-msg');
+  if (!email || !password) { if(msg) msg.textContent = 'Remplis tous les champs.'; return; }
+  if(msg) msg.textContent = 'Chargement…';
+  let res;
+  if (mode === 'login') {
+    res = await sb.auth.signInWithPassword({ email, password });
+  } else {
+    res = await sb.auth.signUp({ email, password });
+  }
+  if (res.error) { if(msg) msg.textContent = res.error.message; return; }
+  if (mode === 'signup') { if(msg) msg.textContent = 'Vérifie ta boîte mail pour confirmer !'; return; }
+  showToast('Connecté ! 🎉');
+  renderCurrentTab();
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  myVotes = {};
+  renderCurrentTab();
+}
+
+function userBar() {
+  if (!currentUser) return '';
+  return `<div class="user-bar">
+    <span class="email">👤 ${esc(currentUser.email)}</span>
+    <button class="logout" onclick="logout()">Déconnexion</button>
+  </div>`;
+}
+
+// ─── VOTE TAB ────────────────────────────────
+function renderVote() {
+  const loading = document.getElementById('vote-loading');
+  const content = document.getElementById('vote-content');
+  loading.style.display = 'none';
+  content.style.display = 'block';
+
+  if (!currentUser) {
+    content.innerHTML = '';
+    renderAuthForm('vote-content', 'Connecte-toi pour voter. Un email suffit, pas de compte Claude nécessaire.');
+    return;
+  }
+
+  const ts = tournamentState;
+
+  if (!ts || !ts.phase) {
+    content.innerHTML = userBar() + `<div class="waiting-state">
+      <div class="big-icon">⏳</div>
+      <h2>Le tournoi n'a pas encore démarré</h2>
+      <p class="info-text">L'admin va bientôt lancer les duels !</p>
+    </div>`;
+    return;
+  }
+
+  if (ts.phase === 'done') {
+    const champ = ts.champion;
+    content.innerHTML = userBar() + `<div class="champion-banner">
+      <h2>🏆 Champion du Tournoi !</h2>
+      ${champ ? `<img src="${esc(champ.url)}" alt="${esc(champ.name)}" onerror="this.style.display='none'">
+      <div class="champion-name">${esc(champ.name)}</div>` : ''}
+    </div>`;
+    return;
+  }
+
+  if (ts.phase !== 'voting') {
+    content.innerHTML = userBar() + `<div class="waiting-state">
+      <div class="big-icon">⏸️</div>
+      <h2>Votes en pause</h2>
+      <p class="info-text">L'admin va bientôt ouvrir le prochain tour.</p>
+    </div>`;
+    return;
+  }
+
+  const round = ts.current_round || 0;
+  const duels = ts.duels || [];
+  let html = userBar() + `<div class="duels-title">${ROUNDS[round] || 'Tour '+(round+1)} — ${duels.length} duels</div><div class="duels-grid">`;
+
+  duels.forEach((duel, i) => {
+    const myVote = myVotes[duel.id];
+    const voted = !!myVote;
+    const va = votesFor(duel, 'a'), vb = votesFor(duel, 'b');
+
+    html += `<div class="duel-card ${voted ? 'voted' : ''}">
+      <div class="duel-header">
+        <span>Duel ${i+1}</span>
+        ${voted ? '<span class="duel-voted-badge">✓ Voté</span>' : ''}
+      </div>
+      <div class="duel-body">
+        <div class="duel-side ${myVote==='a'?'my-pick':''} ${voted?'disabled':''}" onclick="${voted?'':'doVote(\''+duel.id+'\',\'a\')'}">
+          ${photoEl(duel.a)}
+          <div class="duel-name">${esc(duel.a?.name)}</div>
+          ${voted ? `<div class="duel-vote-count">${va} vote${va>1?'s':''}</div>` : ''}
+          ${myVote==='a' ? '<div class="vote-check">✓</div>' : ''}
+        </div>
+        <div class="duel-vs">VS</div>
+        <div class="duel-side ${myVote==='b'?'my-pick':''} ${voted?'disabled':''}" onclick="${voted?'':'doVote(\''+duel.id+'\',\'b\')'}">
+          ${photoEl(duel.b)}
+          <div class="duel-name">${esc(duel.b?.name)}</div>
+          ${voted ? `<div class="duel-vote-count">${vb} vote${vb>1?'s':''}</div>` : ''}
+          ${myVote==='b' ? '<div class="vote-check">✓</div>' : ''}
+        </div>
+      </div>
+      ${!voted ? `<div class="duel-action"><span class="info-text">👆 Clique sur le dossard que tu préfères</span></div>` : ''}
+    </div>`;
+  });
+
+  html += '</div>';
+  content.innerHTML = html;
+}
+
+async function doVote(duelId, side) {
+  if (!currentUser) { showToast('Connecte-toi pour voter'); return; }
+  if (myVotes[duelId]) { showToast('Tu as déjà voté dans ce duel !'); return; }
+
+  // Optimistic
+  myVotes[duelId] = side;
+
+  // Update votes in the duels JSON
+  const duels = JSON.parse(JSON.stringify(tournamentState.duels));
+  const duel = duels.find(d => d.id === duelId);
+  if (!duel) return;
+  if (!duel.votes) duel.votes = {};
+  duel.votes[currentUser.id] = side;
+
+  const { error: tErr } = await sb.from('tournament').update({ duels }).eq('id', 1);
+
+  // Also record in votes table for per-user anti-dup
+  const { error: vErr } = await sb.from('votes').upsert({
+    user_id: currentUser.id, duel_id: duelId, side,
+    round: tournamentState.current_round || 0
+  }, { onConflict: 'user_id,duel_id' });
+
+  if (tErr || vErr) {
+    delete myVotes[duelId];
+    showToast('Erreur : ' + (tErr?.message || vErr?.message));
+    return;
+  }
+
+  showToast('Vote enregistré ! 🎉');
+  renderVote();
+}
+
+// ─── BRACKET ─────────────────────────────────
+function renderBracket() {
+  const loading = document.getElementById('bracket-loading');
+  const content = document.getElementById('bracket-content');
+  loading.style.display = 'none';
+  content.style.display = 'block';
+
+  const ts = tournamentState;
+  if (!ts || !ts.brackets || !ts.brackets.length) {
+    content.innerHTML = `<div class="waiting-state"><div class="big-icon">📊</div><h2>Bracket pas encore disponible</h2></div>`;
+    return;
+  }
+
+  let html = `<div class="bracket">`;
+  ts.brackets.forEach((round, r) => {
+    html += `<div class="bracket-round">
+      <div class="bracket-round-title">${ROUNDS[r] || 'Tour '+(r+1)}</div>
+      <div class="bracket-slots">`;
+    round.forEach(duel => {
+      const wSide = getWinnerSide(duel);
+      html += `<div class="bracket-pair">
+        <div class="bracket-entry ${wSide==='a'?'winner':''} ${duel.a?'':'empty'}">
+          ${duel.a?.url ? `<img src="${duel.a.url}" alt="">` : ''}
+          <span class="bracket-entry-name">${duel.a ? esc(duel.a.name) : '?'}</span>
+        </div>
+        <div class="bracket-entry ${wSide==='b'?'winner':''} ${duel.b?'':'empty'}">
+          ${duel.b?.url ? `<img src="${duel.b.url}" alt="">` : ''}
+          <span class="bracket-entry-name">${duel.b ? esc(duel.b.name) : '?'}</span>
+        </div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+  html += `</div>`;
+  content.innerHTML = html;
+}
+
+// ─── ADMIN ────────────────────────────────────
+function renderAdmin() {
+  const content = document.getElementById('admin-content');
+  if (!currentUser) { renderAuthForm('admin-content'); return; }
+  if (!isAdmin()) {
+    content.innerHTML = `<div class="waiting-state"><div class="big-icon">🔒</div><h2>Accès refusé</h2><p class="info-text">Réservé à l'admin.</p></div>`;
+    return;
+  }
+
+  const ts = tournamentState;
+  const photos = ts?.photos || [];
+  const phase = ts?.phase;
+  const round = ts?.current_round || 0;
+  const duels = ts?.duels || [];
+
+  let totalV = 0;
+  const participants = new Set();
+  duels.forEach(d => { Object.entries(d.votes||{}).forEach(([uid,_]) => { participants.add(uid); totalV++; }); });
+
+  let html = `<div class="admin-section"><h2>⚙️ Administration</h2><div class="admin-grid">`;
+
+  // Photos
+  html += `<div class="admin-card">
+    <h3>📷 Photos (${photos.length}/64)</h3>
+    <div class="progress-bar"><div class="progress-fill" style="width:${(photos.length/64)*100}%"></div></div>
+    <p class="info-text" style="margin-bottom:12px">${photos.length}/64 photos — ${64-photos.length} slots restants</p>
+    <label class="upload-zone">
+      <div class="icon">⬆️</div>
+      <strong>Clique pour uploader des photos</strong>
+      <p>PNG, JPG — sélection multiple OK</p>
+      <input type="file" accept="image/*" multiple onchange="handleUpload(event)">
+    </label>
+    <div class="photos-grid">`;
+  photos.forEach((p, i) => {
+    html += `<div class="photo-thumb">
+      <img src="${esc(p.url)}" alt="${esc(p.name)}" loading="lazy">
+      <div class="label">${esc(p.name)}</div>
+      <button class="del-btn" onclick="deletePhoto(${i})">✕</button>
+    </div>`;
+  });
+  html += `</div></div>`;
+
+  // Contrôle
+  html += `<div class="admin-card"><h3>🎮 Contrôle du tournoi</h3>`;
+  if (!phase) {
+    html += `<p class="info-text" style="margin-bottom:14px">Upload tes photos puis lance le tournoi. Les duels seront générés aléatoirement.</p>
+    <button class="btn-primary" onclick="startTournament()" ${photos.length < 4 ? 'disabled' : ''}>🚀 Lancer (${photos.length} photos)</button>
+    ${photos.length < 4 ? '<p class="info-text" style="margin-top:8px;color:var(--red)">Minimum 4 photos requises.</p>' : ''}`;
+  } else if (phase === 'voting') {
+    html += `<div class="stats-row">
+      <div><div class="stat">${participants.size}</div><div class="stat-label">Votants</div></div>
+      <div><div class="stat">${totalV}</div><div class="stat-label">Votes</div></div>
+      <div><div class="stat">${duels.filter(d=>totalVotes(d)>0).length}/${duels.length}</div><div class="stat-label">Duels actifs</div></div>
+    </div>
+    <p class="info-text" style="margin-bottom:14px">Tour : <strong>${ROUNDS[round]||'Tour '+(round+1)}</strong></p>
+    <button class="btn-primary" onclick="nextRound()">⏭️ Valider & passer au tour suivant</button>
+    <div class="results-list">`;
+    duels.forEach((d, i) => {
+      const va = votesFor(d,'a'), vb = votesFor(d,'b');
+      const ws = va===vb ? null : va>vb ? 'a' : 'b';
+      html += `<div class="result-row">
+        ${d.a?.url ? `<img src="${d.a.url}" alt="">` : ''}
+        <span class="r-name">${esc(d.a?.name)}</span>
+        <span class="r-votes" style="${ws==='a'?'color:var(--green)':''}">${va}</span>
+        <span style="color:var(--muted);font-size:.7rem">vs</span>
+        <span class="r-votes" style="${ws==='b'?'color:var(--green)':''}">${vb}</span>
+        <span class="r-name" style="text-align:right">${esc(d.b?.name)}</span>
+        ${d.b?.url ? `<img src="${d.b.url}" alt="">` : ''}
+        <span>${ws ? '🏆' : '='}</span>
+      </div>`;
+    });
+    html += `</div>`;
+  } else if (phase === 'done') {
+    html += `<p class="info-text" style="margin-bottom:14px">🏆 Tournoi terminé ! Champion : <strong>${esc(ts.champion?.name)}</strong></p>`;
+  }
+  html += `</div>`;
+
+  if (phase) {
+    html += `<div class="admin-card"><h3>⚠️ Zone danger</h3>
+      <p class="info-text" style="margin-bottom:10px">Efface tout le tournoi (les photos restent).</p>
+      <button class="btn-primary btn-danger" onclick="resetTournament()">🔄 Réinitialiser</button>
+    </div>`;
+  }
+
+  html += `</div></div>`;
+  content.innerHTML = html;
+}
+
+// ─── ADMIN ACTIONS ────────────────────────────
+async function handleUpload(evt) {
+  const files = [...evt.target.files];
+  if (!files.length) return;
+  const existing = tournamentState?.photos || [];
+  const slots = 64 - existing.length;
+  const toUpload = files.slice(0, slots);
+  if (toUpload.length < files.length) showToast(`Max 64 photos — ${toUpload.length} uploadées`);
+
+  showToast(`Upload de ${toUpload.length} photo(s)…`);
+  const newPhotos = [...existing];
+
+  for (const file of toUpload) {
+    const ext = file.name.split('.').pop();
+    const path = `photos/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error: upErr } = await sb.storage.from('dossards').upload(path, file);
+    if (upErr) { showToast('Erreur upload : ' + upErr.message); continue; }
+    const { data: { publicUrl } } = sb.storage.from('dossards').getPublicUrl(path);
+    const name = file.name.replace(/\.[^.]+$/, '');
+    newPhotos.push({ url: publicUrl, name, path });
+  }
+
+  await sb.from('tournament').update({ photos: newPhotos }).eq('id', 1);
+  showToast('Photos enregistrées ✓');
+  await loadTournament();
+  renderAdmin();
+}
+
+async function deletePhoto(index) {
+  const photos = [...(tournamentState?.photos || [])];
+  const p = photos.splice(index, 1)[0];
+  if (p.path) await sb.storage.from('dossards').remove([p.path]);
+  await sb.from('tournament').update({ photos }).eq('id', 1);
+  showToast('Photo supprimée');
+  await loadTournament();
+  renderAdmin();
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+async function startTournament() {
+  const photos = tournamentState?.photos || [];
+  if (photos.length < 4) return;
+  const shuffled = shuffle(photos);
+  const duels = [];
+  for (let i = 0; i < shuffled.length - 1; i += 2) {
+    duels.push({ id: 'd' + Date.now() + i, a: shuffled[i], b: shuffled[i+1], votes: {} });
+  }
+  const brackets = [JSON.parse(JSON.stringify(duels))];
+  await sb.from('tournament').update({ phase: 'voting', current_round: 0, duels, brackets, champion: null }).eq('id', 1);
+  showToast('Tournoi lancé 🚀');
+  await loadTournament();
+  renderAdmin();
+}
+
+async function nextRound() {
+  const ts = tournamentState;
+  if (!ts || ts.phase !== 'voting') return;
+  const duels = ts.duels || [];
+  const winners = duels.map(d => {
+    const va = votesFor(d,'a'), vb = votesFor(d,'b');
+    return va >= vb ? d.a : d.b;
+  });
+
+  if (winners.length <= 1) {
+    // Champion !
+    await sb.from('tournament').update({ phase: 'done', champion: winners[0] || null }).eq('id', 1);
+    showToast('🏆 Champion couronné !');
+    await loadTournament(); renderAdmin(); return;
+  }
+
+  const nextDuels = [];
+  for (let i = 0; i < winners.length - 1; i += 2) {
+    nextDuels.push({ id: 'd' + Date.now() + i, a: winners[i], b: winners[i+1] || winners[i], votes: {} });
+  }
+  const nextRound = (ts.current_round || 0) + 1;
+  const brackets = [...(ts.brackets || []), JSON.parse(JSON.stringify(nextDuels))];
+  await sb.from('tournament').update({ phase: 'voting', current_round: nextRound, duels: nextDuels, brackets }).eq('id', 1);
+
+  // Reset votes in votes table for new round
+  await sb.from('votes').delete().eq('round', ts.current_round || 0);
+  myVotes = {};
+
+  showToast(`Tour ${nextRound+1} lancé !`);
+  await loadTournament(); renderAdmin();
+}
+
+async function resetTournament() {
+  if (!confirm('Réinitialiser le tournoi ? (photos conservées)')) return;
+  const photos = tournamentState?.photos || [];
+  await sb.from('tournament').update({ phase: null, current_round: 0, duels: [], brackets: [], champion: null, photos }).eq('id', 1);
+  await sb.from('votes').delete().neq('user_id', 'never');
+  myVotes = {};
+  showToast('Tournoi réinitialisé');
+  await loadTournament(); renderAdmin();
+}
+
+// ─── HELPERS ─────────────────────────────────
+function votesFor(duel, side) {
+  if (!duel.votes) return 0;
+  return Object.values(duel.votes).filter(v => v === side).length;
+}
+function totalVotes(duel) { return votesFor(duel,'a') + votesFor(duel,'b'); }
+function getWinnerSide(duel) {
+  const va = votesFor(duel,'a'), vb = votesFor(duel,'b');
+  if (va === 0 && vb === 0) return null;
+  if (va === vb) return null;
+  return va > vb ? 'a' : 'b';
+}
+function photoEl(p) {
+  if (p?.url) return `<img class="duel-photo" src="${esc(p.url)}" alt="${esc(p.name)}" loading="lazy">`;
+  return `<div class="duel-photo-placeholder">📷</div>`;
+}
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>
