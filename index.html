@@ -3,255 +3,564 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>🏅 Tournoi des Dossards</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<title>Tournoi des Dossards</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a; --border: #2e3350;
-  --yellow: #F5C400; --green: #22c55e; --red: #ef4444;
-  --text: #f0f0f0; --muted: #7a7f9a; --radius: 10px;
-  box-sizing: border-box;
-  padding-top: env(safe-area-inset-top,0px);
-  padding-bottom: env(safe-area-inset-bottom,0px);
+  --bg: #F5F2EE;
+  --white: #FFFFFF;
+  --red: #E8230A;
+  --red-dark: #B81C08;
+  --ink: #1A1A1A;
+  --ink2: #444444;
+  --muted: #999999;
+  --border: #E0DDD8;
+  --radius: 12px;
 }
-*,*::before,*::after{box-sizing:inherit;margin:0;padding:0}
-body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-header{background:var(--surface);border-bottom:2px solid var(--yellow);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:env(safe-area-inset-top,0px);z-index:100}
-header h1{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.5rem;letter-spacing:.04em;color:var(--yellow);text-transform:uppercase}
-.header-meta{font-size:.8rem;color:var(--muted);text-align:right}
-.header-meta strong{color:var(--text)}
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+}
 
-nav{display:flex;gap:6px;padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto}
-nav button{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:.05em;padding:6px 16px;border-radius:20px;border:1.5px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .15s}
-nav button.active{background:var(--yellow);border-color:var(--yellow);color:#000}
-nav button:hover:not(.active){border-color:var(--yellow);color:var(--yellow)}
+/* ── HEADER ── */
+header {
+  background: var(--ink);
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  position: sticky;
+  top: env(safe-area-inset-top, 0);
+  z-index: 100;
+}
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  color: var(--white);
+  letter-spacing: .06em;
+}
+.logo span { color: var(--red); }
+.header-round {
+  font-size: .75rem;
+  color: #888;
+  text-align: right;
+  line-height: 1.4;
+}
+.header-round strong { color: var(--white); display: block; font-size: .85rem; }
 
-main{padding:24px 20px;max-width:860px;margin:0 auto}
-.section{display:none}.section.visible{display:block}
+/* ── NAV ── */
+nav {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  padding: 0 16px;
+  gap: 4px;
+}
+nav button {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: .8rem;
+  padding: 14px 16px 12px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all .15s;
+  white-space: nowrap;
+}
+nav button.active { color: var(--red); border-bottom-color: var(--red); }
+nav button:hover:not(.active) { color: var(--ink); }
 
-.banner{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:14px}
-.banner-icon{font-size:2rem}
-.banner-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.1rem;text-transform:uppercase;color:var(--yellow)}
-.banner-sub{font-size:.85rem;color:var(--muted);margin-top:2px}
+/* ── MAIN ── */
+main { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
+.section { display: none; }
+.section.visible { display: block; }
 
-.duels-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.6rem;text-transform:uppercase;color:var(--yellow);margin-bottom:16px;letter-spacing:.03em}
-.duels-grid{display:grid;grid-template-columns:1fr;gap:16px}
+/* ── ÉTAT VIDE ── */
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+}
+.empty-state .icon { font-size: 3.5rem; margin-bottom: 20px; }
+.empty-state h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  letter-spacing: .04em;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+.empty-state p { font-size: .9rem; color: var(--muted); }
 
-.duel-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color .2s}
-.duel-card.voted{border-color:var(--yellow)}
-.duel-header{background:var(--surface2);padding:8px 14px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.8rem;text-transform:uppercase;color:var(--muted);letter-spacing:.07em;display:flex;justify-content:space-between;align-items:center}
-.duel-voted-badge{font-size:.7rem;background:var(--yellow);color:#000;padding:2px 8px;border-radius:10px;font-weight:700}
-.duel-body{display:grid;grid-template-columns:1fr auto 1fr;align-items:stretch}
-.duel-side{display:flex;flex-direction:column;align-items:center;padding:14px 10px;cursor:pointer;transition:background .15s;position:relative}
-.duel-side:hover:not(.disabled){background:rgba(245,196,0,.06)}
-.duel-side.my-pick{background:rgba(245,196,0,.1)}
-.duel-side.disabled{cursor:default}
-.duel-photo{width:100%;max-width:160px;aspect-ratio:3/4;object-fit:cover;border-radius:6px;background:var(--surface2);display:block}
-.duel-photo-placeholder{width:100%;max-width:160px;aspect-ratio:3/4;background:var(--surface2);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:2.5rem}
-.duel-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.95rem;text-align:center;margin-top:10px;color:var(--text)}
-.duel-vote-count{font-size:.78rem;color:var(--muted);margin-top:4px}
-.vote-check{position:absolute;top:10px;right:10px;width:26px;height:26px;background:var(--yellow);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:900;color:#000}
-.duel-vs{display:flex;align-items:center;justify-content:center;padding:0 6px;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.1rem;color:var(--border)}
-.duel-action{padding:12px 14px;border-top:1px solid var(--border);text-align:center}
+/* ── ROUND LABEL ── */
+.round-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.round-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.2rem;
+  letter-spacing: .04em;
+  color: var(--ink);
+}
+.round-count { font-size: .8rem; color: var(--muted); }
 
-.waiting-state{text-align:center;padding:60px 20px;color:var(--muted)}
-.waiting-state .big-icon{font-size:3rem;margin-bottom:16px}
-.waiting-state h2{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.3rem;text-transform:uppercase;color:var(--text);margin-bottom:8px}
+/* ── DUELS GRID ── */
+.duels-grid { display: grid; gap: 16px; }
 
-/* AUTH */
-.auth-box{max-width:400px;margin:40px auto;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:28px}
-.auth-box h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.4rem;text-transform:uppercase;color:var(--yellow);margin-bottom:6px}
-.auth-box p{font-size:.85rem;color:var(--muted);margin-bottom:20px;line-height:1.5}
-.input-field{width:100%;padding:10px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Barlow',sans-serif;font-size:.9rem;margin-bottom:10px;outline:none}
-.input-field:focus{border-color:var(--yellow)}
-.auth-tabs{display:flex;gap:6px;margin-bottom:20px}
-.auth-tab{flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;font-size:.85rem;cursor:pointer}
-.auth-tab.active{background:var(--yellow);border-color:var(--yellow);color:#000}
+/* ── DUEL CARD ── */
+.duel-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  transition: border-color .2s;
+}
+.duel-card.voted { border-color: var(--red); }
 
-/* BRACKET */
-.bracket-wrap{overflow-x:auto}
-.bracket{display:flex;gap:0;align-items:flex-start;min-width:max-content;padding-bottom:20px}
-.bracket-round{display:flex;flex-direction:column}
-.bracket-round-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.75rem;text-transform:uppercase;color:var(--muted);letter-spacing:.07em;text-align:center;padding:6px 10px 10px}
-.bracket-slots{display:flex;flex-direction:column;flex:1}
-.bracket-pair{display:flex;flex-direction:column;justify-content:center;flex:1;padding:4px 0}
-.bracket-entry{display:flex;align-items:center;gap:6px;background:var(--surface);border:1.5px solid var(--border);border-radius:6px;padding:6px 10px;margin:2px 8px;min-width:120px;font-size:.78rem;white-space:nowrap}
-.bracket-entry.winner{border-color:var(--yellow);background:rgba(245,196,0,.08)}
-.bracket-entry.empty{border-style:dashed;color:var(--muted)}
-.bracket-entry img{width:28px;height:28px;object-fit:cover;border-radius:4px;background:var(--surface2)}
-.bracket-entry-name{font-weight:500;color:var(--text)}
+.duel-top {
+  display: grid;
+  grid-template-columns: 1fr 44px 1fr;
+  min-height: 220px;
+}
+.duel-side {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: background .15s;
+  position: relative;
+  overflow: hidden;
+}
+.duel-side:hover:not(.done) { background: #fafafa; }
+.duel-side.done { cursor: default; }
+.duel-side.picked { background: #fff5f4; }
+.duel-side.not-picked { opacity: .5; }
 
-/* ADMIN */
-.admin-section h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.5rem;text-transform:uppercase;color:var(--yellow);margin-bottom:16px}
-.admin-grid{display:grid;gap:12px}
-.admin-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 18px}
-.admin-card h3{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;text-transform:uppercase;color:var(--text);margin-bottom:10px}
-.upload-zone{border:2px dashed var(--border);border-radius:8px;padding:28px;text-align:center;cursor:pointer;transition:border-color .2s;display:block}
-.upload-zone:hover{border-color:var(--yellow)}
-.upload-zone input{display:none}
-.upload-zone p{color:var(--muted);font-size:.85rem;margin-top:8px}
-.upload-zone .icon{font-size:2rem}
-.photos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-top:12px}
-.photo-thumb{position:relative;aspect-ratio:3/4}
-.photo-thumb img{width:100%;height:100%;object-fit:cover;border-radius:6px;background:var(--surface2);display:block}
-.photo-thumb .label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.7);font-size:.6rem;padding:2px 4px;text-align:center;border-radius:0 0 6px 6px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.photo-thumb .del-btn{position:absolute;top:3px;right:3px;background:var(--red);border:none;border-radius:50%;width:18px;height:18px;font-size:.6rem;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:900}
+.duel-photo-wrap {
+  flex: 1;
+  overflow: hidden;
+  background: var(--bg);
+}
+.duel-photo-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .3s;
+}
+.duel-side:hover:not(.done) .duel-photo-wrap img { transform: scale(1.03); }
 
-.btn-primary{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.95rem;text-transform:uppercase;letter-spacing:.05em;padding:10px 24px;border-radius:8px;border:none;background:var(--yellow);color:#000;cursor:pointer;transition:opacity .15s;display:inline-flex;align-items:center;gap:8px}
-.btn-primary:hover{opacity:.85}
-.btn-primary:disabled{opacity:.4;cursor:not-allowed}
-.btn-danger{background:var(--red);color:#fff}
-.btn-secondary{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9rem;text-transform:uppercase;letter-spacing:.05em;padding:8px 18px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--text);cursor:pointer;transition:all .15s}
-.btn-secondary:hover{border-color:var(--yellow);color:var(--yellow)}
+.duel-photo-placeholder {
+  width: 100%;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  background: var(--bg);
+}
 
-.info-text{font-size:.83rem;color:var(--muted);line-height:1.5}
-.progress-bar{height:6px;background:var(--border);border-radius:3px;margin:12px 0 6px;overflow:hidden}
-.progress-fill{height:100%;background:var(--yellow);border-radius:3px;transition:width .3s}
-.stat{font-family:'Barlow Condensed',sans-serif;font-size:2rem;font-weight:900;color:var(--yellow)}
-.stat-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.stats-row{display:flex;gap:24px;margin-bottom:16px;flex-wrap:wrap}
-.results-list{display:grid;gap:8px;margin-top:12px}
-.result-row{display:flex;align-items:center;gap:10px;background:var(--surface2);border-radius:8px;padding:8px 12px;font-size:.82rem;flex-wrap:wrap}
-.result-row img{width:32px;height:32px;object-fit:cover;border-radius:4px;background:var(--surface);flex-shrink:0}
-.result-row .r-name{flex:1;font-weight:500;min-width:60px}
-.result-row .r-votes{font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--yellow);flex-shrink:0}
+.duel-label {
+  padding: 10px 12px;
+  font-weight: 600;
+  font-size: .82rem;
+  color: var(--ink2);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.duel-label .votes {
+  font-size: .72rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+.pick-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--red);
+  color: #fff;
+  font-size: .65rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  letter-spacing: .04em;
+}
 
-.champion-banner{background:linear-gradient(135deg,rgba(245,196,0,.15) 0%,rgba(245,196,0,.05) 100%);border:2px solid var(--yellow);border-radius:var(--radius);padding:28px;text-align:center;margin-bottom:24px}
-.champion-banner h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:2rem;text-transform:uppercase;color:var(--yellow);letter-spacing:.05em}
-.champion-banner img{width:120px;height:160px;object-fit:cover;border-radius:8px;margin:16px auto;display:block;border:3px solid var(--yellow)}
-.champion-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.4rem;color:var(--text)}
+.duel-sep {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+.vs-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  color: var(--muted);
+  letter-spacing: .06em;
+  writing-mode: vertical-rl;
+}
 
-.user-bar{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;font-size:.82rem}
-.user-bar .email{color:var(--muted)}
-.user-bar .logout{background:transparent;border:1px solid var(--border);border-radius:6px;padding:3px 10px;color:var(--muted);cursor:pointer;font-size:.75rem;font-family:'Barlow',sans-serif}
-.user-bar .logout:hover{border-color:var(--red);color:var(--red)}
+.duel-footer {
+  border-top: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--bg);
+}
+.cta-hint { font-size: .78rem; color: var(--muted); }
+.voted-line {
+  font-size: .78rem;
+  color: var(--red);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
-.loading{text-align:center;padding:60px 20px;color:var(--muted);font-size:.9rem}
-.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--yellow);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* ── CHAMPION ── */
+.champion-wrap {
+  background: var(--ink);
+  border-radius: var(--radius);
+  overflow: hidden;
+  padding: 36px 24px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+.champion-wrap .crown { font-size: 2.5rem; margin-bottom: 12px; }
+.champion-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.8rem;
+  color: var(--white);
+  letter-spacing: .06em;
+  line-height: 1;
+  margin-bottom: 20px;
+}
+.champion-title span { color: var(--red); }
+.champion-photo {
+  width: 140px;
+  height: 186px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin: 0 auto 16px;
+  display: block;
+  border: 3px solid var(--red);
+}
+.champion-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  color: var(--white);
+  letter-spacing: .04em;
+}
 
-.toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);left:50%;transform:translateX(-50%);background:var(--surface2);border:1.5px solid var(--yellow);color:var(--text);padding:10px 22px;border-radius:24px;font-size:.85rem;font-weight:500;z-index:999;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
-.toast.show{opacity:1}
+/* ── BRACKET ── */
+.bracket-scroll { overflow-x: auto; padding-bottom: 16px; }
+.bracket { display: flex; gap: 0; align-items: flex-start; min-width: max-content; }
+.br-col { display: flex; flex-direction: column; }
+.br-col-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: .85rem;
+  letter-spacing: .06em;
+  color: var(--muted);
+  padding: 8px 12px 12px;
+  text-align: center;
+}
+.br-slots { display: flex; flex-direction: column; }
+.br-pair { display: flex; flex-direction: column; flex: 1; padding: 3px 0; }
+.br-entry {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  padding: 7px 10px;
+  margin: 2px 8px;
+  min-width: 130px;
+  font-size: .78rem;
+}
+.br-entry.winner { border-color: var(--red); background: #fff5f4; }
+.br-entry.empty { border-style: dashed; color: var(--muted); }
+.br-entry img { width: 28px; height: 28px; object-fit: cover; border-radius: 4px; background: var(--bg); flex-shrink: 0; }
+.br-name { font-weight: 500; color: var(--ink); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-@media(min-width:600px){
-  .duels-grid{grid-template-columns:1fr 1fr}
-  .duel-photo{max-width:140px}
+/* ── ADMIN ── */
+.admin-wrap h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  letter-spacing: .04em;
+  margin-bottom: 20px;
+  color: var(--ink);
+}
+.admin-grid { display: grid; gap: 14px; }
+.admin-card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+}
+.admin-card h3 {
+  font-weight: 600;
+  font-size: .9rem;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  padding: 32px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  display: block;
+}
+.upload-zone:hover { border-color: var(--red); background: #fff5f4; }
+.upload-zone input { display: none; }
+.upload-zone .up-icon { font-size: 2rem; margin-bottom: 10px; }
+.upload-zone strong { font-size: .9rem; display: block; margin-bottom: 4px; }
+.upload-zone p { font-size: .78rem; color: var(--muted); }
+
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+.photo-thumb { position: relative; aspect-ratio: 3/4; }
+.photo-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; display: block; background: var(--bg); }
+.photo-thumb .tlabel {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,.65); color: #ddd;
+  font-size: .55rem; padding: 2px 4px; border-radius: 0 0 6px 6px;
+  text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.photo-thumb .delbtn {
+  position: absolute; top: 3px; right: 3px;
+  background: #E8230A; border: none; border-radius: 50%;
+  width: 18px; height: 18px; color: #fff; cursor: pointer;
+  font-size: .6rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.progress-bar { height: 5px; background: var(--border); border-radius: 3px; margin: 10px 0 6px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--red); border-radius: 3px; transition: width .3s; }
+
+.stats-row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 16px; }
+.stat-box .num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.2rem;
+  letter-spacing: .02em;
+  color: var(--red);
+  line-height: 1;
+}
+.stat-box .lbl { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+
+.results-list { display: grid; gap: 8px; margin-top: 14px; }
+.result-row {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg); border-radius: 8px; padding: 8px 12px; font-size: .8rem;
+}
+.result-row img { width: 32px; height: 32px; object-fit: cover; border-radius: 5px; flex-shrink: 0; background: var(--border); }
+.result-row .rn { flex: 1; font-weight: 500; }
+.result-row .rv { font-weight: 700; font-size: .85rem; }
+.result-row .rv.win { color: var(--red); }
+
+.btn {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: .85rem;
+  padding: 10px 22px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: opacity .15s, transform .1s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn:hover { opacity: .88; }
+.btn:active { transform: scale(.97); }
+.btn:disabled { opacity: .35; cursor: not-allowed; }
+.btn-red { background: var(--red); color: #fff; }
+.btn-dark { background: var(--ink); color: #fff; }
+.btn-ghost { background: transparent; border: 1.5px solid var(--border); color: var(--ink2); }
+.btn-ghost:hover { border-color: var(--red); color: var(--red); }
+
+/* ── ADMIN LOGIN ── */
+.admin-login {
+  max-width: 360px;
+  margin: 60px auto;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  text-align: center;
+}
+.admin-login h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  letter-spacing: .04em;
+  margin-bottom: 6px;
+}
+.admin-login p { font-size: .83rem; color: var(--muted); margin-bottom: 20px; }
+.input-field {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: .9rem;
+  background: var(--bg);
+  color: var(--ink);
+  outline: none;
+  margin-bottom: 10px;
+}
+.input-field:focus { border-color: var(--red); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+  left: 50%; transform: translateX(-50%);
+  background: var(--ink);
+  color: #fff;
+  padding: 10px 22px;
+  border-radius: 24px;
+  font-size: .82rem;
+  font-weight: 500;
+  z-index: 999;
+  opacity: 0;
+  transition: opacity .2s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* ── SPINNER ── */
+.spinner-wrap { text-align: center; padding: 60px 20px; color: var(--muted); font-size: .85rem; }
+.spinner {
+  width: 30px; height: 30px;
+  border: 3px solid var(--border);
+  border-top-color: var(--red);
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+  margin: 0 auto 14px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (min-width: 560px) {
+  .duels-grid { grid-template-columns: 1fr 1fr; }
+  .duel-top { min-height: 260px; }
 }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>🏅 Tournoi des Dossards</h1>
-  <div class="header-meta">
-    <strong id="round-label">–</strong><br>
-    <span id="round-status">Chargement…</span>
+  <div class="logo">Tournoi<span>.</span>Dossards</div>
+  <div class="header-round">
+    <strong id="hl-round">–</strong>
+    <span id="hl-status">chargement…</span>
   </div>
 </header>
 
 <nav>
   <button class="active" onclick="showTab('vote',this)">Voter</button>
   <button onclick="showTab('bracket',this)">Bracket</button>
-  <button id="admin-btn" onclick="showTab('admin',this)" style="display:none">⚙️ Admin</button>
+  <button id="admin-nav-btn" onclick="showTab('admin',this)" style="display:none">Admin</button>
 </nav>
 
 <main>
   <div class="section visible" id="tab-vote">
-    <div class="loading" id="vote-loading"><div class="spinner"></div>Chargement…</div>
-    <div id="vote-content" style="display:none"></div>
+    <div class="spinner-wrap" id="vote-spin"><div class="spinner"></div>Chargement…</div>
+    <div id="vote-body" style="display:none"></div>
   </div>
   <div class="section" id="tab-bracket">
-    <div class="loading" id="bracket-loading"><div class="spinner"></div>Chargement…</div>
-    <div id="bracket-content" style="display:none" class="bracket-wrap"></div>
+    <div class="spinner-wrap" id="bracket-spin"><div class="spinner"></div>Chargement…</div>
+    <div id="bracket-body" style="display:none" class="bracket-scroll"></div>
   </div>
   <div class="section" id="tab-admin">
-    <div id="admin-content"></div>
+    <div id="admin-body"></div>
   </div>
 </main>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ════════════════════════════════════════════
-//  CONFIG — tes clés Supabase
-// ════════════════════════════════════════════
+// ════════════════════════════════
+//  CONFIG
+// ════════════════════════════════
 const SUPABASE_URL  = 'https://kjhvciovfpkoeocanrnq.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqaHZjaW92ZnBrb2VvY2Fucm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzU4MTksImV4cCI6MjEwODAxMTgxOX0.OsN_YK_4mrORrKuOs31yRPcwn36b1_A_1Mk7yJHjtN0';
 
-
-const ADMIN_EMAIL = 'mael.paquier@gmail.com';
-
-// ════════════════════════════════════════════
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-
-let currentUser = null;
-let tournamentState = null;
-let myVotes = {}; // duelId -> 'a' | 'b'
-let realtimeSub = null;
+// MOT DE PASSE ADMIN — change-le !
+const ADMIN_PASSWORD = 'bccc2024';
 
 const ROUNDS = ['64e de finale','32e de finale','16e de finale','Quart de finale','Demi-finale','Finale'];
 
-// ─── BOOT ───────────────────────────────────
+// ════════════════════════════════
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let ts = null;           // tournament state
+let myVotes = {};        // duelId -> 'a'|'b' (cookie)
+let adminUnlocked = false;
+let realtimeSub = null;
+let currentTab = 'vote';
+
+// ── BOOT ─────────────────────────
 (async () => {
-  // Auth state listener
-  sb.auth.onAuthStateChange(async (event, session) => {
-    currentUser = session?.user ?? null;
-    if (currentUser) {
-      await loadMyVotes();
-      if (isAdmin()) document.getElementById('admin-btn').style.display = '';
-    } else {
-      document.getElementById('admin-btn').style.display = 'none';
-    }
-    renderCurrentTab();
-  });
+  loadVotesFromCookie();
+  adminUnlocked = sessionStorage.getItem('admin') === ADMIN_PASSWORD;
+  if (adminUnlocked) document.getElementById('admin-nav-btn').style.display = '';
 
-  // Load initial session
-  const { data: { session } } = await sb.auth.getSession();
-  currentUser = session?.user ?? null;
-  if (currentUser) {
-    await loadMyVotes();
-    if (isAdmin()) document.getElementById('admin-btn').style.display = '';
-  }
-
-  // Load tournament + subscribe
   await loadTournament();
   subscribeRealtime();
 })();
 
-function isAdmin() {
-  return currentUser?.email === ADMIN_EMAIL;
+// ── SUPABASE ──────────────────────
+async function loadTournament() {
+  const { data } = await sb.from('tournament').select('*').eq('id', 1).single();
+  ts = data || null;
+  renderCurrentTab();
+  updateHeader();
 }
 
-// ─── REALTIME ───────────────────────────────
 function subscribeRealtime() {
   if (realtimeSub) sb.removeChannel(realtimeSub);
-  realtimeSub = sb.channel('tournament')
+  realtimeSub = sb.channel('trn')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'tournament' }, async () => {
       await loadTournament();
-      renderCurrentTab();
     })
     .subscribe();
 }
 
-async function loadTournament() {
-  const { data, error } = await sb.from('tournament').select('*').eq('id', 1).single();
-  if (data) {
-    tournamentState = data;
-    updateHeader();
-  }
+// ── COOKIES ───────────────────────
+function loadVotesFromCookie() {
+  try {
+    const raw = localStorage.getItem('myVotes');
+    myVotes = raw ? JSON.parse(raw) : {};
+  } catch(e) { myVotes = {}; }
+}
+function saveVotesToCookie() {
+  try { localStorage.setItem('myVotes', JSON.stringify(myVotes)); } catch(e) {}
 }
 
-async function loadMyVotes() {
-  if (!currentUser) return;
-  const { data } = await sb.from('votes').select('duel_id, side').eq('user_id', currentUser.id);
-  myVotes = {};
-  (data || []).forEach(v => myVotes[v.duel_id] = v.side);
-}
-
-// ─── TABS ────────────────────────────────────
-let currentTab = 'vote';
+// ── TABS ──────────────────────────
 function showTab(name, btn) {
   currentTab = name;
   document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
@@ -267,341 +576,310 @@ function renderCurrentTab() {
   updateHeader();
 }
 
-// ─── HEADER ─────────────────────────────────
+// ── HEADER ────────────────────────
 function updateHeader() {
-  if (!tournamentState) { document.getElementById('round-label').textContent = 'Pas démarré'; return; }
-  const round = tournamentState.current_round || 0;
-  const duels = tournamentState.duels || [];
-  document.getElementById('round-label').textContent = ROUNDS[round] || `Tour ${round+1}`;
-  const phase = tournamentState.phase;
-  if (phase === 'voting') {
-    const active = duels.filter(d => totalVotes(d) > 0).length;
-    document.getElementById('round-status').textContent = `${active}/${duels.length} duels avec votes`;
-  } else if (phase === 'done') {
-    document.getElementById('round-status').textContent = '🏆 Terminé !';
-  } else {
-    document.getElementById('round-status').textContent = 'En attente…';
-  }
-}
-
-// ─── AUTH FORM ───────────────────────────────
-function renderAuthForm(containerId, message) {
-  const c = document.getElementById(containerId);
-  c.innerHTML = `
-    <div class="auth-box">
-      <h2>Connexion requise</h2>
-      <p>${message || 'Connecte-toi pour voter. Un email suffit, pas besoin de compte Claude.'}</p>
-      <div class="auth-tabs">
-        <button class="auth-tab active" onclick="switchAuthTab('login')">Se connecter</button>
-        <button class="auth-tab" onclick="switchAuthTab('signup')">S'inscrire</button>
-      </div>
-      <div id="auth-form-inner">
-        <input class="input-field" id="auth-email" type="email" placeholder="ton@email.com">
-        <input class="input-field" id="auth-password" type="password" placeholder="Mot de passe">
-        <button class="btn-primary" style="width:100%;justify-content:center;margin-top:4px" onclick="doAuth('login')">Se connecter</button>
-      </div>
-      <p class="info-text" style="margin-top:12px" id="auth-msg"></p>
-    </div>`;
-}
-
-let authMode = 'login';
-function switchAuthTab(mode) {
-  authMode = mode;
-  document.querySelectorAll('.auth-tab').forEach((b,i) => b.classList.toggle('active', (i===0&&mode==='login')||(i===1&&mode==='signup')));
-  const btn = document.querySelector('#auth-form-inner .btn-primary');
-  if (btn) btn.textContent = mode === 'login' ? 'Se connecter' : "S'inscrire";
-  if (btn) btn.setAttribute('onclick', `doAuth('${mode}')`);
-}
-
-async function doAuth(mode) {
-  const email = document.getElementById('auth-email')?.value?.trim();
-  const password = document.getElementById('auth-password')?.value;
-  const msg = document.getElementById('auth-msg');
-  if (!email || !password) { if(msg) msg.textContent = 'Remplis tous les champs.'; return; }
-  if(msg) msg.textContent = 'Chargement…';
-  let res;
-  if (mode === 'login') {
-    res = await sb.auth.signInWithPassword({ email, password });
-  } else {
-    res = await sb.auth.signUp({ email, password });
-  }
-  if (res.error) { if(msg) msg.textContent = res.error.message; return; }
-  if (mode === 'signup') { if(msg) msg.textContent = 'Vérifie ta boîte mail pour confirmer !'; return; }
-  showToast('Connecté ! 🎉');
-  renderCurrentTab();
-}
-
-async function logout() {
-  await sb.auth.signOut();
-  myVotes = {};
-  renderCurrentTab();
-}
-
-function userBar() {
-  if (!currentUser) return '';
-  return `<div class="user-bar">
-    <span class="email">👤 ${esc(currentUser.email)}</span>
-    <button class="logout" onclick="logout()">Déconnexion</button>
-  </div>`;
-}
-
-// ─── VOTE TAB ────────────────────────────────
-function renderVote() {
-  const loading = document.getElementById('vote-loading');
-  const content = document.getElementById('vote-content');
-  loading.style.display = 'none';
-  content.style.display = 'block';
-
-  if (!currentUser) {
-    content.innerHTML = '';
-    renderAuthForm('vote-content', 'Connecte-toi pour voter. Un email suffit, pas de compte Claude nécessaire.');
+  if (!ts || !ts.phase) {
+    document.getElementById('hl-round').textContent = 'Pas encore démarré';
+    document.getElementById('hl-status').textContent = '';
     return;
   }
+  const r = ts.current_round || 0;
+  const duels = ts.duels || [];
+  document.getElementById('hl-round').textContent = ROUNDS[r] || `Tour ${r+1}`;
+  if (ts.phase === 'voting') {
+    const done = duels.filter(d => totalVotes(d) > 0).length;
+    document.getElementById('hl-status').textContent = `${done}/${duels.length} duels actifs`;
+  } else if (ts.phase === 'done') {
+    document.getElementById('hl-status').textContent = '🏆 terminé';
+  } else {
+    document.getElementById('hl-status').textContent = 'en pause';
+  }
+}
 
-  const ts = tournamentState;
+// ── VOTE ──────────────────────────
+function renderVote() {
+  const spin = document.getElementById('vote-spin');
+  const body = document.getElementById('vote-body');
+  spin.style.display = 'none';
+  body.style.display = 'block';
 
   if (!ts || !ts.phase) {
-    content.innerHTML = userBar() + `<div class="waiting-state">
-      <div class="big-icon">⏳</div>
+    body.innerHTML = `<div class="empty-state">
+      <div class="icon">⏳</div>
       <h2>Le tournoi n'a pas encore démarré</h2>
-      <p class="info-text">L'admin va bientôt lancer les duels !</p>
+      <p>L'admin va bientôt lancer les premiers duels !</p>
     </div>`;
     return;
   }
 
   if (ts.phase === 'done') {
-    const champ = ts.champion;
-    content.innerHTML = userBar() + `<div class="champion-banner">
-      <h2>🏆 Champion du Tournoi !</h2>
-      ${champ ? `<img src="${esc(champ.url)}" alt="${esc(champ.name)}" onerror="this.style.display='none'">
-      <div class="champion-name">${esc(champ.name)}</div>` : ''}
+    const c = ts.champion;
+    body.innerHTML = `<div class="champion-wrap">
+      <div class="crown">🏆</div>
+      <div class="champion-title">Champion <span>du tournoi</span></div>
+      ${c?.url ? `<img class="champion-photo" src="${x(c.url)}" alt="${x(c.name)}">` : ''}
+      <div class="champion-name">${x(c?.name || '–')}</div>
     </div>`;
     return;
   }
 
   if (ts.phase !== 'voting') {
-    content.innerHTML = userBar() + `<div class="waiting-state">
-      <div class="big-icon">⏸️</div>
+    body.innerHTML = `<div class="empty-state">
+      <div class="icon">⏸️</div>
       <h2>Votes en pause</h2>
-      <p class="info-text">L'admin va bientôt ouvrir le prochain tour.</p>
+      <p>L'admin prépare le prochain tour…</p>
     </div>`;
     return;
   }
 
-  const round = ts.current_round || 0;
+  const r = ts.current_round || 0;
   const duels = ts.duels || [];
-  let html = userBar() + `<div class="duels-title">${ROUNDS[round] || 'Tour '+(round+1)} — ${duels.length} duels</div><div class="duels-grid">`;
+  let html = `<div class="round-header">
+    <div class="round-title">${ROUNDS[r] || 'Tour '+(r+1)}</div>
+    <div class="round-count">${duels.length} duels</div>
+  </div>
+  <div class="duels-grid">`;
 
-  duels.forEach((duel, i) => {
-    const myVote = myVotes[duel.id];
-    const voted = !!myVote;
-    const va = votesFor(duel, 'a'), vb = votesFor(duel, 'b');
+  duels.forEach((d, i) => {
+    const mv = myVotes[d.id];
+    const voted = !!mv;
+    const va = votesFor(d,'a'), vb = votesFor(d,'b');
+
+    const sideClass = (side) => {
+      if (!voted) return '';
+      return mv === side ? 'picked' : 'not-picked';
+    };
 
     html += `<div class="duel-card ${voted ? 'voted' : ''}">
-      <div class="duel-header">
-        <span>Duel ${i+1}</span>
-        ${voted ? '<span class="duel-voted-badge">✓ Voté</span>' : ''}
-      </div>
-      <div class="duel-body">
-        <div class="duel-side ${myVote==='a'?'my-pick':''} ${voted?'disabled':''}" onclick="${voted?'':'doVote(\''+duel.id+'\',\'a\')'}">
-          ${photoEl(duel.a)}
-          <div class="duel-name">${esc(duel.a?.name)}</div>
-          ${voted ? `<div class="duel-vote-count">${va} vote${va>1?'s':''}</div>` : ''}
-          ${myVote==='a' ? '<div class="vote-check">✓</div>' : ''}
+      <div class="duel-top">
+        <div class="duel-side ${sideClass('a')} ${voted?'done':''}" onclick="${voted?'':'vote(\''+d.id+'\',\'a\')'}">
+          ${mv==='a' ? '<div class="pick-badge">Mon vote</div>' : ''}
+          <div class="duel-photo-wrap">
+            ${d.a?.url ? `<img src="${x(d.a.url)}" alt="${x(d.a.name)}" loading="lazy">` : '<div class="duel-photo-placeholder">📷</div>'}
+          </div>
+          <div class="duel-label">
+            <span>${x(d.a?.name)}</span>
+            ${voted ? `<span class="votes">${va} vote${va>1?'s':''}</span>` : ''}
+          </div>
         </div>
-        <div class="duel-vs">VS</div>
-        <div class="duel-side ${myVote==='b'?'my-pick':''} ${voted?'disabled':''}" onclick="${voted?'':'doVote(\''+duel.id+'\',\'b\')'}">
-          ${photoEl(duel.b)}
-          <div class="duel-name">${esc(duel.b?.name)}</div>
-          ${voted ? `<div class="duel-vote-count">${vb} vote${vb>1?'s':''}</div>` : ''}
-          ${myVote==='b' ? '<div class="vote-check">✓</div>' : ''}
+        <div class="duel-sep"><div class="vs-label">VS</div></div>
+        <div class="duel-side ${sideClass('b')} ${voted?'done':''}" onclick="${voted?'':'vote(\''+d.id+'\',\'b\')'}">
+          ${mv==='b' ? '<div class="pick-badge">Mon vote</div>' : ''}
+          <div class="duel-photo-wrap">
+            ${d.b?.url ? `<img src="${x(d.b.url)}" alt="${x(d.b.name)}" loading="lazy">` : '<div class="duel-photo-placeholder">📷</div>'}
+          </div>
+          <div class="duel-label">
+            <span>${x(d.b?.name)}</span>
+            ${voted ? `<span class="votes">${vb} vote${vb>1?'s':''}</span>` : ''}
+          </div>
         </div>
       </div>
-      ${!voted ? `<div class="duel-action"><span class="info-text">👆 Clique sur le dossard que tu préfères</span></div>` : ''}
+      <div class="duel-footer">
+        ${voted
+          ? `<div class="voted-line">✓ Voté — résultats visibles ci-dessus</div>`
+          : `<div class="cta-hint">Clique sur le dossard que tu préfères</div>`
+        }
+      </div>
     </div>`;
   });
 
   html += '</div>';
-  content.innerHTML = html;
+  body.innerHTML = html;
 }
 
-async function doVote(duelId, side) {
-  if (!currentUser) { showToast('Connecte-toi pour voter'); return; }
+async function vote(duelId, side) {
   if (myVotes[duelId]) { showToast('Tu as déjà voté dans ce duel !'); return; }
 
-  // Optimistic
   myVotes[duelId] = side;
+  saveVotesToCookie();
+  renderVote();
 
-  // Update votes in the duels JSON
-  const duels = JSON.parse(JSON.stringify(tournamentState.duels));
+  const duels = JSON.parse(JSON.stringify(ts.duels));
   const duel = duels.find(d => d.id === duelId);
   if (!duel) return;
   if (!duel.votes) duel.votes = {};
-  duel.votes[currentUser.id] = side;
+  // Use a random anon id stored in localStorage for counting
+  let anonId = localStorage.getItem('anonId');
+  if (!anonId) { anonId = 'anon_' + Math.random().toString(36).slice(2); localStorage.setItem('anonId', anonId); }
+  duel.votes[anonId] = side;
 
-  const { error: tErr } = await sb.from('tournament').update({ duels }).eq('id', 1);
-
-  // Also record in votes table for per-user anti-dup
-  const { error: vErr } = await sb.from('votes').upsert({
-    user_id: currentUser.id, duel_id: duelId, side,
-    round: tournamentState.current_round || 0
-  }, { onConflict: 'user_id,duel_id' });
-
-  if (tErr || vErr) {
+  const { error } = await sb.from('tournament').update({ duels }).eq('id', 1);
+  if (error) {
     delete myVotes[duelId];
-    showToast('Erreur : ' + (tErr?.message || vErr?.message));
+    saveVotesToCookie();
+    renderVote();
+    showToast('Erreur réseau, réessaie');
     return;
   }
-
-  showToast('Vote enregistré ! 🎉');
-  renderVote();
+  showToast('Vote enregistré 🎉');
 }
 
-// ─── BRACKET ─────────────────────────────────
+// ── BRACKET ───────────────────────
 function renderBracket() {
-  const loading = document.getElementById('bracket-loading');
-  const content = document.getElementById('bracket-content');
-  loading.style.display = 'none';
-  content.style.display = 'block';
+  const spin = document.getElementById('bracket-spin');
+  const body = document.getElementById('bracket-body');
+  spin.style.display = 'none';
+  body.style.display = 'block';
 
-  const ts = tournamentState;
-  if (!ts || !ts.brackets || !ts.brackets.length) {
-    content.innerHTML = `<div class="waiting-state"><div class="big-icon">📊</div><h2>Bracket pas encore disponible</h2></div>`;
+  if (!ts?.brackets?.length) {
+    body.innerHTML = `<div class="empty-state"><div class="icon">📊</div><h2>Bracket pas encore disponible</h2></div>`;
     return;
   }
 
   let html = `<div class="bracket">`;
   ts.brackets.forEach((round, r) => {
-    html += `<div class="bracket-round">
-      <div class="bracket-round-title">${ROUNDS[r] || 'Tour '+(r+1)}</div>
-      <div class="bracket-slots">`;
+    html += `<div class="br-col">
+      <div class="br-col-title">${ROUNDS[r] || 'Tour '+(r+1)}</div>
+      <div class="br-slots">`;
     round.forEach(duel => {
-      const wSide = getWinnerSide(duel);
-      html += `<div class="bracket-pair">
-        <div class="bracket-entry ${wSide==='a'?'winner':''} ${duel.a?'':'empty'}">
-          ${duel.a?.url ? `<img src="${duel.a.url}" alt="">` : ''}
-          <span class="bracket-entry-name">${duel.a ? esc(duel.a.name) : '?'}</span>
+      const ws = winnerSide(duel);
+      html += `<div class="br-pair">
+        <div class="br-entry ${ws==='a'?'winner':''} ${duel.a?'':'empty'}">
+          ${duel.a?.url ? `<img src="${x(duel.a.url)}" alt="">` : ''}
+          <span class="br-name">${duel.a ? x(duel.a.name) : '?'}</span>
         </div>
-        <div class="bracket-entry ${wSide==='b'?'winner':''} ${duel.b?'':'empty'}">
-          ${duel.b?.url ? `<img src="${duel.b.url}" alt="">` : ''}
-          <span class="bracket-entry-name">${duel.b ? esc(duel.b.name) : '?'}</span>
+        <div class="br-entry ${ws==='b'?'winner':''} ${duel.b?'':'empty'}">
+          ${duel.b?.url ? `<img src="${x(duel.b.url)}" alt="">` : ''}
+          <span class="br-name">${duel.b ? x(duel.b.name) : '?'}</span>
         </div>
       </div>`;
     });
     html += `</div></div>`;
   });
   html += `</div>`;
-  content.innerHTML = html;
+  body.innerHTML = html;
 }
 
-// ─── ADMIN ────────────────────────────────────
+// ── ADMIN ─────────────────────────
 function renderAdmin() {
-  const content = document.getElementById('admin-content');
-  if (!currentUser) { renderAuthForm('admin-content'); return; }
-  if (!isAdmin()) {
-    content.innerHTML = `<div class="waiting-state"><div class="big-icon">🔒</div><h2>Accès refusé</h2><p class="info-text">Réservé à l'admin.</p></div>`;
+  const body = document.getElementById('admin-body');
+
+  if (!adminUnlocked) {
+    body.innerHTML = `<div class="admin-login">
+      <h2>Admin</h2>
+      <p>Entre le mot de passe pour accéder au panneau d'administration.</p>
+      <input class="input-field" type="password" id="admin-pwd" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')checkAdmin()">
+      <button class="btn btn-red" style="width:100%;justify-content:center" onclick="checkAdmin()">Accéder</button>
+      <p id="admin-pwd-err" style="color:#E8230A;font-size:.78rem;margin-top:10px"></p>
+    </div>`;
     return;
   }
 
-  const ts = tournamentState;
   const photos = ts?.photos || [];
   const phase = ts?.phase;
-  const round = ts?.current_round || 0;
+  const r = ts?.current_round || 0;
   const duels = ts?.duels || [];
 
-  let totalV = 0;
   const participants = new Set();
-  duels.forEach(d => { Object.entries(d.votes||{}).forEach(([uid,_]) => { participants.add(uid); totalV++; }); });
+  let totalV = 0;
+  duels.forEach(d => Object.keys(d.votes||{}).forEach(uid => { participants.add(uid); totalV++; }));
 
-  let html = `<div class="admin-section"><h2>⚙️ Administration</h2><div class="admin-grid">`;
+  let html = `<div class="admin-wrap"><h2>Administration</h2><div class="admin-grid">`;
 
   // Photos
   html += `<div class="admin-card">
-    <h3>📷 Photos (${photos.length}/64)</h3>
+    <h3>Photos (${photos.length}/64)</h3>
     <div class="progress-bar"><div class="progress-fill" style="width:${(photos.length/64)*100}%"></div></div>
-    <p class="info-text" style="margin-bottom:12px">${photos.length}/64 photos — ${64-photos.length} slots restants</p>
+    <p style="font-size:.78rem;color:var(--muted);margin-bottom:14px">${photos.length} uploadées · ${64-photos.length} slots libres</p>
     <label class="upload-zone">
-      <div class="icon">⬆️</div>
-      <strong>Clique pour uploader des photos</strong>
-      <p>PNG, JPG — sélection multiple OK</p>
+      <div class="up-icon">📤</div>
+      <strong>Cliquer pour uploader</strong>
+      <p>Sélection multiple OK · PNG, JPG</p>
       <input type="file" accept="image/*" multiple onchange="handleUpload(event)">
     </label>
     <div class="photos-grid">`;
-  photos.forEach((p, i) => {
+  photos.forEach((p,i) => {
     html += `<div class="photo-thumb">
-      <img src="${esc(p.url)}" alt="${esc(p.name)}" loading="lazy">
-      <div class="label">${esc(p.name)}</div>
-      <button class="del-btn" onclick="deletePhoto(${i})">✕</button>
+      <img src="${x(p.url)}" loading="lazy" alt="${x(p.name)}">
+      <div class="tlabel">${x(p.name)}</div>
+      <button class="delbtn" onclick="deletePhoto(${i})">✕</button>
     </div>`;
   });
   html += `</div></div>`;
 
   // Contrôle
-  html += `<div class="admin-card"><h3>🎮 Contrôle du tournoi</h3>`;
+  html += `<div class="admin-card"><h3>Contrôle du tournoi</h3>`;
   if (!phase) {
-    html += `<p class="info-text" style="margin-bottom:14px">Upload tes photos puis lance le tournoi. Les duels seront générés aléatoirement.</p>
-    <button class="btn-primary" onclick="startTournament()" ${photos.length < 4 ? 'disabled' : ''}>🚀 Lancer (${photos.length} photos)</button>
-    ${photos.length < 4 ? '<p class="info-text" style="margin-top:8px;color:var(--red)">Minimum 4 photos requises.</p>' : ''}`;
+    html += `<p style="font-size:.83rem;color:var(--muted);margin-bottom:16px">
+      Upload tes photos puis lance le tournoi. Les duels du premier tour seront générés aléatoirement.
+    </p>
+    <button class="btn btn-red" onclick="startTournament()" ${photos.length<4?'disabled':''}>
+      Lancer le tournoi (${photos.length} photos)
+    </button>
+    ${photos.length<4?'<p style="font-size:.75rem;color:var(--red);margin-top:8px">Minimum 4 photos.</p>':''}`;
+
   } else if (phase === 'voting') {
     html += `<div class="stats-row">
-      <div><div class="stat">${participants.size}</div><div class="stat-label">Votants</div></div>
-      <div><div class="stat">${totalV}</div><div class="stat-label">Votes</div></div>
-      <div><div class="stat">${duels.filter(d=>totalVotes(d)>0).length}/${duels.length}</div><div class="stat-label">Duels actifs</div></div>
+      <div class="stat-box"><div class="num">${participants.size}</div><div class="lbl">Votants</div></div>
+      <div class="stat-box"><div class="num">${totalV}</div><div class="lbl">Votes</div></div>
+      <div class="stat-box"><div class="num">${duels.filter(d=>totalVotes(d)>0).length}/${duels.length}</div><div class="lbl">Duels actifs</div></div>
     </div>
-    <p class="info-text" style="margin-bottom:14px">Tour : <strong>${ROUNDS[round]||'Tour '+(round+1)}</strong></p>
-    <button class="btn-primary" onclick="nextRound()">⏭️ Valider & passer au tour suivant</button>
+    <p style="font-size:.83rem;color:var(--muted);margin-bottom:16px">Tour en cours : <strong>${ROUNDS[r]||'Tour '+(r+1)}</strong>. En cas d'égalité, le premier dossard (A) passe.</p>
+    <button class="btn btn-dark" onclick="nextRound()">Valider le tour et passer au suivant</button>
     <div class="results-list">`;
-    duels.forEach((d, i) => {
+    duels.forEach(d => {
       const va = votesFor(d,'a'), vb = votesFor(d,'b');
-      const ws = va===vb ? null : va>vb ? 'a' : 'b';
+      const ws = va===vb ? null : (va>vb?'a':'b');
       html += `<div class="result-row">
-        ${d.a?.url ? `<img src="${d.a.url}" alt="">` : ''}
-        <span class="r-name">${esc(d.a?.name)}</span>
-        <span class="r-votes" style="${ws==='a'?'color:var(--green)':''}">${va}</span>
+        ${d.a?.url?`<img src="${x(d.a.url)}" alt="">`:''}
+        <span class="rn">${x(d.a?.name)}</span>
+        <span class="rv ${ws==='a'?'win':''}">${va}</span>
         <span style="color:var(--muted);font-size:.7rem">vs</span>
-        <span class="r-votes" style="${ws==='b'?'color:var(--green)':''}">${vb}</span>
-        <span class="r-name" style="text-align:right">${esc(d.b?.name)}</span>
-        ${d.b?.url ? `<img src="${d.b.url}" alt="">` : ''}
-        <span>${ws ? '🏆' : '='}</span>
+        <span class="rv ${ws==='b'?'win':''}">${vb}</span>
+        <span class="rn" style="text-align:right">${x(d.b?.name)}</span>
+        ${d.b?.url?`<img src="${x(d.b.url)}" alt="">`:''}
+        <span>${ws?'🏆':'='}</span>
       </div>`;
     });
     html += `</div>`;
+
   } else if (phase === 'done') {
-    html += `<p class="info-text" style="margin-bottom:14px">🏆 Tournoi terminé ! Champion : <strong>${esc(ts.champion?.name)}</strong></p>`;
+    html += `<p style="font-size:.83rem;color:var(--muted);margin-bottom:16px">🏆 Tournoi terminé ! Champion : <strong>${x(ts.champion?.name)}</strong></p>`;
   }
   html += `</div>`;
 
   if (phase) {
-    html += `<div class="admin-card"><h3>⚠️ Zone danger</h3>
-      <p class="info-text" style="margin-bottom:10px">Efface tout le tournoi (les photos restent).</p>
-      <button class="btn-primary btn-danger" onclick="resetTournament()">🔄 Réinitialiser</button>
+    html += `<div class="admin-card">
+      <h3 style="color:#E8230A">Zone danger</h3>
+      <p style="font-size:.78rem;color:var(--muted);margin-bottom:12px">Remet le tournoi à zéro. Les photos sont conservées.</p>
+      <button class="btn btn-ghost" onclick="resetTournament()">Réinitialiser le tournoi</button>
     </div>`;
   }
 
   html += `</div></div>`;
-  content.innerHTML = html;
+  body.innerHTML = html;
 }
 
-// ─── ADMIN ACTIONS ────────────────────────────
+function checkAdmin() {
+  const val = document.getElementById('admin-pwd')?.value;
+  if (val === ADMIN_PASSWORD) {
+    adminUnlocked = true;
+    sessionStorage.setItem('admin', ADMIN_PASSWORD);
+    document.getElementById('admin-nav-btn').style.display = '';
+    renderAdmin();
+  } else {
+    document.getElementById('admin-pwd-err').textContent = 'Mot de passe incorrect.';
+  }
+}
+
+// ── ADMIN ACTIONS ─────────────────
 async function handleUpload(evt) {
   const files = [...evt.target.files];
   if (!files.length) return;
-  const existing = tournamentState?.photos || [];
+  const existing = ts?.photos || [];
   const slots = 64 - existing.length;
   const toUpload = files.slice(0, slots);
-  if (toUpload.length < files.length) showToast(`Max 64 photos — ${toUpload.length} uploadées`);
-
+  if (toUpload.length < files.length) showToast(`Max 64 — seules ${toUpload.length} uploadées`);
   showToast(`Upload de ${toUpload.length} photo(s)…`);
-  const newPhotos = [...existing];
 
+  const newPhotos = [...existing];
   for (const file of toUpload) {
     const ext = file.name.split('.').pop();
     const path = `photos/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error: upErr } = await sb.storage.from('dossards').upload(path, file);
-    if (upErr) { showToast('Erreur upload : ' + upErr.message); continue; }
+    const { error } = await sb.storage.from('dossards').upload(path, file);
+    if (error) { showToast('Erreur upload : ' + error.message); continue; }
     const { data: { publicUrl } } = sb.storage.from('dossards').getPublicUrl(path);
-    const name = file.name.replace(/\.[^.]+$/, '');
-    newPhotos.push({ url: publicUrl, name, path });
+    newPhotos.push({ url: publicUrl, name: file.name.replace(/\.[^.]+$/,''), path });
   }
 
   await sb.from('tournament').update({ photos: newPhotos }).eq('id', 1);
@@ -610,109 +888,91 @@ async function handleUpload(evt) {
   renderAdmin();
 }
 
-async function deletePhoto(index) {
-  const photos = [...(tournamentState?.photos || [])];
-  const p = photos.splice(index, 1)[0];
-  if (p.path) await sb.storage.from('dossards').remove([p.path]);
+async function deletePhoto(i) {
+  const photos = [...(ts?.photos||[])];
+  const p = photos.splice(i, 1)[0];
+  if (p?.path) await sb.storage.from('dossards').remove([p.path]);
   await sb.from('tournament').update({ photos }).eq('id', 1);
   showToast('Photo supprimée');
-  await loadTournament();
-  renderAdmin();
+  await loadTournament(); renderAdmin();
 }
 
 function shuffle(arr) {
   const a = [...arr];
-  for (let i = a.length-1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i+1));
+  for (let i = a.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
     [a[i],a[j]] = [a[j],a[i]];
   }
   return a;
 }
 
 async function startTournament() {
-  const photos = tournamentState?.photos || [];
+  const photos = ts?.photos || [];
   if (photos.length < 4) return;
   const shuffled = shuffle(photos);
   const duels = [];
-  for (let i = 0; i < shuffled.length - 1; i += 2) {
-    duels.push({ id: 'd' + Date.now() + i, a: shuffled[i], b: shuffled[i+1], votes: {} });
-  }
+  for (let i = 0; i < shuffled.length-1; i+=2)
+    duels.push({ id: 'd'+Date.now()+i, a: shuffled[i], b: shuffled[i+1], votes: {} });
   const brackets = [JSON.parse(JSON.stringify(duels))];
-  await sb.from('tournament').update({ phase: 'voting', current_round: 0, duels, brackets, champion: null }).eq('id', 1);
+  await sb.from('tournament').update({ phase:'voting', current_round:0, duels, brackets, champion:null }).eq('id',1);
+  myVotes = {}; saveVotesToCookie();
   showToast('Tournoi lancé 🚀');
-  await loadTournament();
-  renderAdmin();
+  await loadTournament(); renderAdmin();
 }
 
 async function nextRound() {
-  const ts = tournamentState;
-  if (!ts || ts.phase !== 'voting') return;
+  if (ts?.phase !== 'voting') return;
   const duels = ts.duels || [];
-  const winners = duels.map(d => {
-    const va = votesFor(d,'a'), vb = votesFor(d,'b');
-    return va >= vb ? d.a : d.b;
-  });
+  const winners = duels.map(d => votesFor(d,'a') >= votesFor(d,'b') ? d.a : d.b);
 
   if (winners.length <= 1) {
-    // Champion !
-    await sb.from('tournament').update({ phase: 'done', champion: winners[0] || null }).eq('id', 1);
+    await sb.from('tournament').update({ phase:'done', champion: winners[0]||null }).eq('id',1);
     showToast('🏆 Champion couronné !');
     await loadTournament(); renderAdmin(); return;
   }
 
   const nextDuels = [];
-  for (let i = 0; i < winners.length - 1; i += 2) {
-    nextDuels.push({ id: 'd' + Date.now() + i, a: winners[i], b: winners[i+1] || winners[i], votes: {} });
-  }
-  const nextRound = (ts.current_round || 0) + 1;
-  const brackets = [...(ts.brackets || []), JSON.parse(JSON.stringify(nextDuels))];
-  await sb.from('tournament').update({ phase: 'voting', current_round: nextRound, duels: nextDuels, brackets }).eq('id', 1);
+  for (let i = 0; i < winners.length-1; i+=2)
+    nextDuels.push({ id:'d'+Date.now()+i, a:winners[i], b:winners[i+1]||winners[i], votes:{} });
 
-  // Reset votes in votes table for new round
-  await sb.from('votes').delete().eq('round', ts.current_round || 0);
-  myVotes = {};
-
-  showToast(`Tour ${nextRound+1} lancé !`);
+  const nr = (ts.current_round||0) + 1;
+  const brackets = [...(ts.brackets||[]), JSON.parse(JSON.stringify(nextDuels))];
+  await sb.from('tournament').update({ phase:'voting', current_round:nr, duels:nextDuels, brackets }).eq('id',1);
+  myVotes = {}; saveVotesToCookie();
+  showToast(`Tour ${nr+1} lancé !`);
   await loadTournament(); renderAdmin();
 }
 
 async function resetTournament() {
-  if (!confirm('Réinitialiser le tournoi ? (photos conservées)')) return;
-  const photos = tournamentState?.photos || [];
-  await sb.from('tournament').update({ phase: null, current_round: 0, duels: [], brackets: [], champion: null, photos }).eq('id', 1);
-  await sb.from('votes').delete().neq('user_id', 'never');
-  myVotes = {};
+  if (!confirm('Réinitialiser ? (photos conservées)')) return;
+  await sb.from('tournament').update({ phase:null, current_round:0, duels:[], brackets:[], champion:null }).eq('id',1);
+  myVotes = {}; saveVotesToCookie();
   showToast('Tournoi réinitialisé');
   await loadTournament(); renderAdmin();
 }
 
-// ─── HELPERS ─────────────────────────────────
-function votesFor(duel, side) {
-  if (!duel.votes) return 0;
-  return Object.values(duel.votes).filter(v => v === side).length;
+// ── HELPERS ───────────────────────
+function votesFor(d, side) {
+  return Object.values(d.votes||{}).filter(v=>v===side).length;
 }
-function totalVotes(duel) { return votesFor(duel,'a') + votesFor(duel,'b'); }
-function getWinnerSide(duel) {
-  const va = votesFor(duel,'a'), vb = votesFor(duel,'b');
-  if (va === 0 && vb === 0) return null;
-  if (va === vb) return null;
-  return va > vb ? 'a' : 'b';
+function totalVotes(d) { return votesFor(d,'a')+votesFor(d,'b'); }
+function winnerSide(d) {
+  const va=votesFor(d,'a'), vb=votesFor(d,'b');
+  if (!va&&!vb) return null;
+  if (va===vb) return null;
+  return va>vb?'a':'b';
 }
-function photoEl(p) {
-  if (p?.url) return `<img class="duel-photo" src="${esc(p.url)}" alt="${esc(p.name)}" loading="lazy">`;
-  return `<div class="duel-photo-placeholder">📷</div>`;
-}
-function esc(s) {
+function x(s) {
   if (!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-let toastTimer;
+let toastT;
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+  clearTimeout(toastT);
+  toastT = setTimeout(()=>t.classList.remove('show'), 3200);
 }
 </script>
 </body>
