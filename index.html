@@ -339,7 +339,7 @@ function renderVote() {
 
     html += `<div class="duel-card ${voted?'voted':''}">
       <div class="duel-top">
-        <div class="duel-side ${sc('a')} ${voted?'done':''}" onclick="${voted?'':'vote(\''+d.id+'\',\'a\')'}">
+        <div class="duel-side ${sc('a')}" onclick="vote('${d.id}','a')">
           ${mv==='a'?'<div class="pick-badge">Mon vote</div>':''}
           <div class="duel-photo-wrap">
             ${d.a?.url?`<img src="${x(d.a.url)}" alt="${x(d.a.name)}" loading="lazy">`:'<div class="duel-photo-placeholder">📷</div>'}
@@ -350,7 +350,7 @@ function renderVote() {
           </div>
         </div>
         <div class="duel-sep"><div class="vs-label">VS</div></div>
-        <div class="duel-side ${sc('b')} ${voted?'done':''}" onclick="${voted?'':'vote(\''+d.id+'\',\'b\')'}">
+        <div class="duel-side ${sc('b')}" onclick="vote('${d.id}','b')">
           ${mv==='b'?'<div class="pick-badge">Mon vote</div>':''}
           <div class="duel-photo-wrap">
             ${d.b?.url?`<img src="${x(d.b.url)}" alt="${x(d.b.name)}" loading="lazy">`:'<div class="duel-photo-placeholder">📷</div>'}
@@ -363,7 +363,7 @@ function renderVote() {
       </div>
       <div class="duel-footer">
         ${voted
-          ? '<div class="voted-line">✓ Voté — les scores s\'affichent ci-dessus</div>'
+          ? '<div class="voted-line">✓ Voté — clique sur l\'autre pour changer</div>'
           : '<div class="cta-hint">Clique sur le dossard que tu préfères</div>'}
       </div>
     </div>`;
@@ -374,7 +374,9 @@ function renderVote() {
 }
 
 async function vote(duelId, side) {
-  if (myVotes[duelId]) { showToast('Tu as déjà voté dans ce duel !'); return; }
+  const previous = myVotes[duelId];
+  if (previous === side) return; // même choix, rien à faire
+
   myVotes[duelId] = side;
   saveVotes();
   renderVote();
@@ -387,11 +389,13 @@ async function vote(duelId, side) {
 
   const { error } = await sb.from('tournament').update({ duels }).eq('id', 1);
   if (error) {
-    delete myVotes[duelId]; saveVotes(); renderVote();
+    myVotes[duelId] = previous;
+    if (previous === undefined) delete myVotes[duelId];
+    saveVotes(); renderVote();
     showToast('Erreur réseau, réessaie');
     return;
   }
-  showToast('Vote enregistré 🎉');
+  showToast(previous ? 'Vote modifié ✓' : 'Vote enregistré 🎉');
 }
 
 // ── BRACKET ───────────────────────────────────
