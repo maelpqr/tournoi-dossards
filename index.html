@@ -606,7 +606,11 @@ async function startTournament() {
 async function nextRound() {
   if (ts?.phase!=='voting') return;
   const duels = ts.duels||[];
-  const winners = duels.map(d => votesFor(d,'a')>=votesFor(d,'b')?d.a:d.b);
+  const winners = duels.map(d => {
+    const va = votesFor(d,'a'), vb = votesFor(d,'b');
+    if (va === vb) return Math.random() < 0.5 ? d.a : d.b; // tirage au sort
+    return va > vb ? d.a : d.b;
+  });
   if (winners.length<=1) {
     await sb.from('tournament').update({phase:'done',champion:winners[0]||null}).eq('id',1);
     showToast('🏆 Champion couronné !');
