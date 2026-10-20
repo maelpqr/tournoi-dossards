@@ -11,7 +11,6 @@
   --bg: #F5F2EE;
   --white: #FFFFFF;
   --red: #E8230A;
-  --red-dark: #B81C08;
   --ink: #1A1A1A;
   --ink2: #444444;
   --muted: #999999;
@@ -19,380 +18,143 @@
   --radius: 12px;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
 
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--bg);
-  color: var(--ink);
-  min-height: 100vh;
-}
-
-/* ── HEADER ── */
 header {
   background: var(--ink);
   padding: 0 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: flex; align-items: center; justify-content: space-between;
   height: 56px;
-  position: sticky;
-  top: env(safe-area-inset-top, 0);
-  z-index: 100;
+  position: sticky; top: env(safe-area-inset-top,0); z-index: 100;
 }
-.logo {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.5rem;
-  color: var(--white);
-  letter-spacing: .06em;
-}
+.logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; color: var(--white); letter-spacing: .06em; }
 .logo span { color: var(--red); }
-.header-round {
-  font-size: .75rem;
-  color: #888;
-  text-align: right;
-  line-height: 1.4;
-}
+.header-round { font-size: .75rem; color: #888; text-align: right; line-height: 1.4; }
 .header-round strong { color: var(--white); display: block; font-size: .85rem; }
 
-/* ── NAV ── */
 nav {
-  background: var(--white);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  padding: 0 16px;
-  gap: 4px;
+  background: var(--white); border-bottom: 1px solid var(--border);
+  display: flex; padding: 0 16px; gap: 4px;
 }
 nav button {
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: .8rem;
-  padding: 14px 16px 12px;
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-  transition: all .15s;
-  white-space: nowrap;
+  font-family: 'Inter', sans-serif; font-weight: 600; font-size: .8rem;
+  padding: 14px 16px 12px; border: none; background: transparent; color: var(--muted);
+  cursor: pointer; border-bottom: 3px solid transparent; transition: all .15s; white-space: nowrap;
 }
 nav button.active { color: var(--red); border-bottom-color: var(--red); }
 nav button:hover:not(.active) { color: var(--ink); }
 
-/* ── MAIN ── */
 main { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
 .section { display: none; }
 .section.visible { display: block; }
 
-/* ── ÉTAT VIDE ── */
-.empty-state {
-  text-align: center;
-  padding: 80px 20px;
-}
+.empty-state { text-align: center; padding: 80px 20px; }
 .empty-state .icon { font-size: 3.5rem; margin-bottom: 20px; }
-.empty-state h2 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 2rem;
-  letter-spacing: .04em;
-  color: var(--ink);
-  margin-bottom: 10px;
-}
+.empty-state h2 { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: .04em; margin-bottom: 10px; }
 .empty-state p { font-size: .9rem; color: var(--muted); }
 
-/* ── ROUND LABEL ── */
-.round-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-.round-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 2.2rem;
-  letter-spacing: .04em;
-  color: var(--ink);
-}
+.round-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px; }
+.round-title { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; letter-spacing: .04em; }
 .round-count { font-size: .8rem; color: var(--muted); }
 
-/* ── DUELS GRID ── */
 .duels-grid { display: grid; gap: 16px; }
 
-/* ── DUEL CARD ── */
 .duel-card {
-  background: var(--white);
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 1.5px solid var(--border);
-  transition: border-color .2s;
+  background: var(--white); border-radius: var(--radius);
+  overflow: hidden; border: 1.5px solid var(--border); transition: border-color .2s;
 }
 .duel-card.voted { border-color: var(--red); }
+.duel-top { display: grid; grid-template-columns: 1fr 44px 1fr; min-height: 220px; }
 
-.duel-top {
-  display: grid;
-  grid-template-columns: 1fr 44px 1fr;
-  min-height: 220px;
-}
 .duel-side {
-  display: flex;
-  flex-direction: column;
-  cursor: pointer;
-  transition: background .15s;
-  position: relative;
-  overflow: hidden;
+  display: flex; flex-direction: column; cursor: pointer;
+  transition: background .15s; position: relative; overflow: hidden;
 }
 .duel-side:hover:not(.done) { background: #fafafa; }
 .duel-side.done { cursor: default; }
 .duel-side.picked { background: #fff5f4; }
 .duel-side.not-picked { opacity: .5; }
 
-.duel-photo-wrap {
-  flex: 1;
-  overflow: hidden;
-  background: var(--bg);
-}
-.duel-photo-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform .3s;
-}
+.duel-photo-wrap { flex: 1; overflow: hidden; background: var(--bg); }
+.duel-photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
 .duel-side:hover:not(.done) .duel-photo-wrap img { transform: scale(1.03); }
-
-.duel-photo-placeholder {
-  width: 100%;
-  height: 180px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3rem;
-  background: var(--bg);
-}
+.duel-photo-placeholder { width: 100%; height: 180px; display: flex; align-items: center; justify-content: center; font-size: 3rem; background: var(--bg); }
 
 .duel-label {
-  padding: 10px 12px;
-  font-weight: 600;
-  font-size: .82rem;
-  color: var(--ink2);
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
+  padding: 10px 12px; font-weight: 600; font-size: .82rem; color: var(--ink2);
+  border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 6px;
 }
-.duel-label .votes {
-  font-size: .72rem;
-  color: var(--muted);
-  font-weight: 400;
-}
+.duel-label .votes { font-size: .72rem; color: var(--muted); font-weight: 400; }
 .pick-badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: var(--red);
-  color: #fff;
-  font-size: .65rem;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 20px;
-  letter-spacing: .04em;
+  position: absolute; top: 10px; left: 10px;
+  background: var(--red); color: #fff; font-size: .65rem; font-weight: 700;
+  padding: 3px 8px; border-radius: 20px; letter-spacing: .04em;
 }
-
 .duel-sep {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg);
-  border-left: 1px solid var(--border);
-  border-right: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg); border-left: 1px solid var(--border); border-right: 1px solid var(--border);
 }
-.vs-label {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.1rem;
-  color: var(--muted);
-  letter-spacing: .06em;
-  writing-mode: vertical-rl;
-}
+.vs-label { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; color: var(--muted); letter-spacing: .06em; writing-mode: vertical-rl; }
 
 .duel-footer {
-  border-top: 1px solid var(--border);
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background: var(--bg);
+  border-top: 1px solid var(--border); padding: 12px 16px;
+  display: flex; align-items: center; justify-content: center; background: var(--bg);
 }
 .cta-hint { font-size: .78rem; color: var(--muted); }
-.voted-line {
-  font-size: .78rem;
-  color: var(--red);
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+.voted-line { font-size: .78rem; color: var(--red); font-weight: 600; }
 
-/* ── CHAMPION ── */
-.champion-wrap {
-  background: var(--ink);
-  border-radius: var(--radius);
-  overflow: hidden;
-  padding: 36px 24px;
-  text-align: center;
-  margin-bottom: 24px;
-}
+.champion-wrap { background: var(--ink); border-radius: var(--radius); padding: 36px 24px; text-align: center; margin-bottom: 24px; }
 .champion-wrap .crown { font-size: 2.5rem; margin-bottom: 12px; }
-.champion-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 2.8rem;
-  color: var(--white);
-  letter-spacing: .06em;
-  line-height: 1;
-  margin-bottom: 20px;
-}
+.champion-title { font-family: 'Bebas Neue', sans-serif; font-size: 2.8rem; color: var(--white); letter-spacing: .06em; line-height: 1; margin-bottom: 20px; }
 .champion-title span { color: var(--red); }
-.champion-photo {
-  width: 140px;
-  height: 186px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin: 0 auto 16px;
-  display: block;
-  border: 3px solid var(--red);
-}
-.champion-name {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.8rem;
-  color: var(--white);
-  letter-spacing: .04em;
-}
+.champion-photo { width: 140px; height: 186px; object-fit: cover; border-radius: 8px; margin: 0 auto 16px; display: block; border: 3px solid var(--red); }
+.champion-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--white); letter-spacing: .04em; }
 
-/* ── BRACKET ── */
 .bracket-scroll { overflow-x: auto; padding-bottom: 16px; }
-.bracket { display: flex; gap: 0; align-items: flex-start; min-width: max-content; }
+.bracket { display: flex; align-items: flex-start; min-width: max-content; }
 .br-col { display: flex; flex-direction: column; }
-.br-col-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: .85rem;
-  letter-spacing: .06em;
-  color: var(--muted);
-  padding: 8px 12px 12px;
-  text-align: center;
-}
+.br-col-title { font-family: 'Bebas Neue', sans-serif; font-size: .85rem; letter-spacing: .06em; color: var(--muted); padding: 8px 12px 12px; text-align: center; }
 .br-slots { display: flex; flex-direction: column; }
 .br-pair { display: flex; flex-direction: column; flex: 1; padding: 3px 0; }
-.br-entry {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  background: var(--white);
-  border: 1.5px solid var(--border);
-  border-radius: 7px;
-  padding: 7px 10px;
-  margin: 2px 8px;
-  min-width: 130px;
-  font-size: .78rem;
-}
+.br-entry { display: flex; align-items: center; gap: 7px; background: var(--white); border: 1.5px solid var(--border); border-radius: 7px; padding: 7px 10px; margin: 2px 8px; min-width: 130px; font-size: .78px; }
 .br-entry.winner { border-color: var(--red); background: #fff5f4; }
 .br-entry.empty { border-style: dashed; color: var(--muted); }
 .br-entry img { width: 28px; height: 28px; object-fit: cover; border-radius: 4px; background: var(--bg); flex-shrink: 0; }
-.br-name { font-weight: 500; color: var(--ink); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.br-name { font-weight: 500; color: var(--ink); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .78rem; }
 
-/* ── ADMIN ── */
-.admin-wrap h2 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 2rem;
-  letter-spacing: .04em;
-  margin-bottom: 20px;
-  color: var(--ink);
-}
+.admin-wrap h2 { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: .04em; margin-bottom: 20px; }
 .admin-grid { display: grid; gap: 14px; }
-.admin-card {
-  background: var(--white);
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius);
-  padding: 18px 20px;
-}
-.admin-card h3 {
-  font-weight: 600;
-  font-size: .9rem;
-  color: var(--ink);
-  margin-bottom: 14px;
-}
+.admin-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 18px 20px; }
+.admin-card h3 { font-weight: 600; font-size: .9rem; color: var(--ink); margin-bottom: 14px; }
 
-.upload-zone {
-  border: 2px dashed var(--border);
-  border-radius: 10px;
-  padding: 32px 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: border-color .2s, background .2s;
-  display: block;
-}
+.upload-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 32px 20px; text-align: center; cursor: pointer; transition: border-color .2s, background .2s; display: block; }
 .upload-zone:hover { border-color: var(--red); background: #fff5f4; }
 .upload-zone input { display: none; }
 .upload-zone .up-icon { font-size: 2rem; margin-bottom: 10px; }
 .upload-zone strong { font-size: .9rem; display: block; margin-bottom: 4px; }
 .upload-zone p { font-size: .78rem; color: var(--muted); }
 
-.photos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
-  gap: 8px;
-  margin-top: 14px;
-}
+.photos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px; margin-top: 14px; }
 .photo-thumb { position: relative; aspect-ratio: 3/4; }
 .photo-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; display: block; background: var(--bg); }
-.photo-thumb .tlabel {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  background: rgba(0,0,0,.65); color: #ddd;
-  font-size: .55rem; padding: 2px 4px; border-radius: 0 0 6px 6px;
-  text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.photo-thumb .delbtn {
-  position: absolute; top: 3px; right: 3px;
-  background: #E8230A; border: none; border-radius: 50%;
-  width: 18px; height: 18px; color: #fff; cursor: pointer;
-  font-size: .6rem; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-}
+.photo-thumb .tlabel { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,.65); color: #ddd; font-size: .55rem; padding: 2px 4px; border-radius: 0 0 6px 6px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.photo-thumb .delbtn { position: absolute; top: 3px; right: 3px; background: var(--red); border: none; border-radius: 50%; width: 18px; height: 18px; color: #fff; cursor: pointer; font-size: .6rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 
 .progress-bar { height: 5px; background: var(--border); border-radius: 3px; margin: 10px 0 6px; overflow: hidden; }
 .progress-fill { height: 100%; background: var(--red); border-radius: 3px; transition: width .3s; }
 
 .stats-row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 16px; }
-.stat-box .num {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 2.2rem;
-  letter-spacing: .02em;
-  color: var(--red);
-  line-height: 1;
-}
+.stat-box .num { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; letter-spacing: .02em; color: var(--red); line-height: 1; }
 .stat-box .lbl { font-size: .72rem; color: var(--muted); margin-top: 2px; }
 
 .results-list { display: grid; gap: 8px; margin-top: 14px; }
-.result-row {
-  display: flex; align-items: center; gap: 10px;
-  background: var(--bg); border-radius: 8px; padding: 8px 12px; font-size: .8rem;
-}
+.result-row { display: flex; align-items: center; gap: 10px; background: var(--bg); border-radius: 8px; padding: 8px 12px; font-size: .8rem; }
 .result-row img { width: 32px; height: 32px; object-fit: cover; border-radius: 5px; flex-shrink: 0; background: var(--border); }
 .result-row .rn { flex: 1; font-weight: 500; }
 .result-row .rv { font-weight: 700; font-size: .85rem; }
 .result-row .rv.win { color: var(--red); }
 
-.btn {
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: .85rem;
-  padding: 10px 22px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: opacity .15s, transform .1s;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
+.btn { font-family: 'Inter', sans-serif; font-weight: 600; font-size: .85rem; padding: 10px 22px; border-radius: 8px; border: none; cursor: pointer; transition: opacity .15s, transform .1s; display: inline-flex; align-items: center; gap: 8px; }
 .btn:hover { opacity: .88; }
 .btn:active { transform: scale(.97); }
 .btn:disabled { opacity: .35; cursor: not-allowed; }
@@ -401,66 +163,17 @@ main { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
 .btn-ghost { background: transparent; border: 1.5px solid var(--border); color: var(--ink2); }
 .btn-ghost:hover { border-color: var(--red); color: var(--red); }
 
-/* ── ADMIN LOGIN ── */
-.admin-login {
-  max-width: 360px;
-  margin: 60px auto;
-  background: var(--white);
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius);
-  padding: 32px;
-  text-align: center;
-}
-.admin-login h2 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.8rem;
-  letter-spacing: .04em;
-  margin-bottom: 6px;
-}
+.admin-login { max-width: 360px; margin: 60px auto; background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 32px; text-align: center; }
+.admin-login h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: .04em; margin-bottom: 6px; }
 .admin-login p { font-size: .83rem; color: var(--muted); margin-bottom: 20px; }
-.input-field {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  font-family: 'Inter', sans-serif;
-  font-size: .9rem;
-  background: var(--bg);
-  color: var(--ink);
-  outline: none;
-  margin-bottom: 10px;
-}
+.input-field { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: .9rem; background: var(--bg); color: var(--ink); outline: none; margin-bottom: 10px; }
 .input-field:focus { border-color: var(--red); }
 
-/* ── TOAST ── */
-.toast {
-  position: fixed;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
-  left: 50%; transform: translateX(-50%);
-  background: var(--ink);
-  color: #fff;
-  padding: 10px 22px;
-  border-radius: 24px;
-  font-size: .82rem;
-  font-weight: 500;
-  z-index: 999;
-  opacity: 0;
-  transition: opacity .2s;
-  pointer-events: none;
-  white-space: nowrap;
-}
+.toast { position: fixed; bottom: calc(env(safe-area-inset-bottom,0px) + 24px); left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 22px; border-radius: 24px; font-size: .82rem; font-weight: 500; z-index: 999; opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap; }
 .toast.show { opacity: 1; }
 
-/* ── SPINNER ── */
 .spinner-wrap { text-align: center; padding: 60px 20px; color: var(--muted); font-size: .85rem; }
-.spinner {
-  width: 30px; height: 30px;
-  border: 3px solid var(--border);
-  border-top-color: var(--red);
-  border-radius: 50%;
-  animation: spin .6s linear infinite;
-  margin: 0 auto 14px;
-}
+.spinner { width: 30px; height: 30px; border: 3px solid var(--border); border-top-color: var(--red); border-radius: 50%; animation: spin .6s linear infinite; margin: 0 auto 14px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 @media (min-width: 560px) {
@@ -502,37 +215,26 @@ main { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
 <div class="toast" id="toast"></div>
 
 <script>
-// ════════════════════════════════
-//  CONFIG
-// ════════════════════════════════
 const SUPABASE_URL  = 'https://kjhvciovfpkoeocanrnq.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtqaHZjaW92ZnBrb2VvY2Fucm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MzU4MTksImV4cCI6MjEwODAxMTgxOX0.OsN_YK_4mrORrKuOs31yRPcwn36b1_A_1Mk7yJHjtN0';
-
-// MOT DE PASSE ADMIN — change-le !
-const ADMIN_PASSWORD = 'bccc2024';
-
 const ROUNDS = ['64e de finale','32e de finale','16e de finale','Quart de finale','Demi-finale','Finale'];
 
-// ════════════════════════════════
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-let ts = null;           // tournament state
-let myVotes = {};        // duelId -> 'a'|'b' (cookie)
+let ts = null;
+let myVotes = {};
 let adminUnlocked = false;
-let realtimeSub = null;
 let currentTab = 'vote';
 
-// ── BOOT ─────────────────────────
+// ── BOOT ──────────────────────────────────────
 (async () => {
-  loadVotesFromCookie();
-  adminUnlocked = sessionStorage.getItem('admin') === ADMIN_PASSWORD;
+  loadVotesFromStorage();
+  adminUnlocked = sessionStorage.getItem('adminOk') === '1';
   if (adminUnlocked) document.getElementById('admin-nav-btn').style.display = '';
-
   await loadTournament();
   subscribeRealtime();
 })();
 
-// ── SUPABASE ──────────────────────
 async function loadTournament() {
   const { data } = await sb.from('tournament').select('*').eq('id', 1).single();
   ts = data || null;
@@ -541,26 +243,27 @@ async function loadTournament() {
 }
 
 function subscribeRealtime() {
-  if (realtimeSub) sb.removeChannel(realtimeSub);
-  realtimeSub = sb.channel('trn')
+  sb.channel('trn')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'tournament' }, async () => {
       await loadTournament();
     })
     .subscribe();
 }
 
-// ── COOKIES ───────────────────────
-function loadVotesFromCookie() {
-  try {
-    const raw = localStorage.getItem('myVotes');
-    myVotes = raw ? JSON.parse(raw) : {};
-  } catch(e) { myVotes = {}; }
+// ── STORAGE ───────────────────────────────────
+function loadVotesFromStorage() {
+  try { myVotes = JSON.parse(localStorage.getItem('myVotes') || '{}'); } catch(e) { myVotes = {}; }
 }
-function saveVotesToCookie() {
+function saveVotes() {
   try { localStorage.setItem('myVotes', JSON.stringify(myVotes)); } catch(e) {}
 }
+function getAnonId() {
+  let id = localStorage.getItem('anonId');
+  if (!id) { id = 'anon_' + Math.random().toString(36).slice(2); localStorage.setItem('anonId', id); }
+  return id;
+}
 
-// ── TABS ──────────────────────────
+// ── TABS ──────────────────────────────────────
 function showTab(name, btn) {
   currentTab = name;
   document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
@@ -576,9 +279,9 @@ function renderCurrentTab() {
   updateHeader();
 }
 
-// ── HEADER ────────────────────────
+// ── HEADER ────────────────────────────────────
 function updateHeader() {
-  if (!ts || !ts.phase) {
+  if (!ts?.phase) {
     document.getElementById('hl-round').textContent = 'Pas encore démarré';
     document.getElementById('hl-status').textContent = '';
     return;
@@ -587,8 +290,8 @@ function updateHeader() {
   const duels = ts.duels || [];
   document.getElementById('hl-round').textContent = ROUNDS[r] || `Tour ${r+1}`;
   if (ts.phase === 'voting') {
-    const done = duels.filter(d => totalVotes(d) > 0).length;
-    document.getElementById('hl-status').textContent = `${done}/${duels.length} duels actifs`;
+    const active = duels.filter(d => totalVotes(d) > 0).length;
+    document.getElementById('hl-status').textContent = `${active}/${duels.length} duels actifs`;
   } else if (ts.phase === 'done') {
     document.getElementById('hl-status').textContent = '🏆 terminé';
   } else {
@@ -596,22 +299,17 @@ function updateHeader() {
   }
 }
 
-// ── VOTE ──────────────────────────
+// ── VOTE ──────────────────────────────────────
 function renderVote() {
   const spin = document.getElementById('vote-spin');
   const body = document.getElementById('vote-body');
   spin.style.display = 'none';
   body.style.display = 'block';
 
-  if (!ts || !ts.phase) {
-    body.innerHTML = `<div class="empty-state">
-      <div class="icon">⏳</div>
-      <h2>Le tournoi n'a pas encore démarré</h2>
-      <p>L'admin va bientôt lancer les premiers duels !</p>
-    </div>`;
+  if (!ts?.phase) {
+    body.innerHTML = `<div class="empty-state"><div class="icon">⏳</div><h2>Le tournoi n'a pas encore démarré</h2><p>L'admin va bientôt lancer les premiers duels !</p></div>`;
     return;
   }
-
   if (ts.phase === 'done') {
     const c = ts.champion;
     body.innerHTML = `<div class="champion-wrap">
@@ -622,13 +320,8 @@ function renderVote() {
     </div>`;
     return;
   }
-
   if (ts.phase !== 'voting') {
-    body.innerHTML = `<div class="empty-state">
-      <div class="icon">⏸️</div>
-      <h2>Votes en pause</h2>
-      <p>L'admin prépare le prochain tour…</p>
-    </div>`;
+    body.innerHTML = `<div class="empty-state"><div class="icon">⏸️</div><h2>Votes en pause</h2><p>L'admin prépare le prochain tour…</p></div>`;
     return;
   }
 
@@ -637,48 +330,42 @@ function renderVote() {
   let html = `<div class="round-header">
     <div class="round-title">${ROUNDS[r] || 'Tour '+(r+1)}</div>
     <div class="round-count">${duels.length} duels</div>
-  </div>
-  <div class="duels-grid">`;
+  </div><div class="duels-grid">`;
 
-  duels.forEach((d, i) => {
+  duels.forEach((d) => {
     const mv = myVotes[d.id];
     const voted = !!mv;
     const va = votesFor(d,'a'), vb = votesFor(d,'b');
+    const sc = (side) => !voted ? '' : mv===side ? 'picked' : 'not-picked';
 
-    const sideClass = (side) => {
-      if (!voted) return '';
-      return mv === side ? 'picked' : 'not-picked';
-    };
-
-    html += `<div class="duel-card ${voted ? 'voted' : ''}">
+    html += `<div class="duel-card ${voted?'voted':''}">
       <div class="duel-top">
-        <div class="duel-side ${sideClass('a')} ${voted?'done':''}" onclick="${voted?'':'vote(\''+d.id+'\',\'a\')'}">
-          ${mv==='a' ? '<div class="pick-badge">Mon vote</div>' : ''}
+        <div class="duel-side ${sc('a')} ${voted?'done':''}" onclick="${voted?'':'vote(\''+d.id+'\',\'a\')'}">
+          ${mv==='a'?'<div class="pick-badge">Mon vote</div>':''}
           <div class="duel-photo-wrap">
-            ${d.a?.url ? `<img src="${x(d.a.url)}" alt="${x(d.a.name)}" loading="lazy">` : '<div class="duel-photo-placeholder">📷</div>'}
+            ${d.a?.url?`<img src="${x(d.a.url)}" alt="${x(d.a.name)}" loading="lazy">`:'<div class="duel-photo-placeholder">📷</div>'}
           </div>
           <div class="duel-label">
             <span>${x(d.a?.name)}</span>
-            ${voted ? `<span class="votes">${va} vote${va>1?'s':''}</span>` : ''}
+            ${voted?`<span class="votes">${va} vote${va>1?'s':''}</span>`:''}
           </div>
         </div>
         <div class="duel-sep"><div class="vs-label">VS</div></div>
-        <div class="duel-side ${sideClass('b')} ${voted?'done':''}" onclick="${voted?'':'vote(\''+d.id+'\',\'b\')'}">
-          ${mv==='b' ? '<div class="pick-badge">Mon vote</div>' : ''}
+        <div class="duel-side ${sc('b')} ${voted?'done':''}" onclick="${voted?'':'vote(\''+d.id+'\',\'b\')'}">
+          ${mv==='b'?'<div class="pick-badge">Mon vote</div>':''}
           <div class="duel-photo-wrap">
-            ${d.b?.url ? `<img src="${x(d.b.url)}" alt="${x(d.b.name)}" loading="lazy">` : '<div class="duel-photo-placeholder">📷</div>'}
+            ${d.b?.url?`<img src="${x(d.b.url)}" alt="${x(d.b.name)}" loading="lazy">`:'<div class="duel-photo-placeholder">📷</div>'}
           </div>
           <div class="duel-label">
             <span>${x(d.b?.name)}</span>
-            ${voted ? `<span class="votes">${vb} vote${vb>1?'s':''}</span>` : ''}
+            ${voted?`<span class="votes">${vb} vote${vb>1?'s':''}</span>`:''}
           </div>
         </div>
       </div>
       <div class="duel-footer">
         ${voted
-          ? `<div class="voted-line">✓ Voté — résultats visibles ci-dessus</div>`
-          : `<div class="cta-hint">Clique sur le dossard que tu préfères</div>`
-        }
+          ? '<div class="voted-line">✓ Voté — les scores s\'affichent ci-dessus</div>'
+          : '<div class="cta-hint">Clique sur le dossard que tu préfères</div>'}
       </div>
     </div>`;
   });
@@ -689,32 +376,26 @@ function renderVote() {
 
 async function vote(duelId, side) {
   if (myVotes[duelId]) { showToast('Tu as déjà voté dans ce duel !'); return; }
-
   myVotes[duelId] = side;
-  saveVotesToCookie();
+  saveVotes();
   renderVote();
 
   const duels = JSON.parse(JSON.stringify(ts.duels));
   const duel = duels.find(d => d.id === duelId);
   if (!duel) return;
   if (!duel.votes) duel.votes = {};
-  // Use a random anon id stored in localStorage for counting
-  let anonId = localStorage.getItem('anonId');
-  if (!anonId) { anonId = 'anon_' + Math.random().toString(36).slice(2); localStorage.setItem('anonId', anonId); }
-  duel.votes[anonId] = side;
+  duel.votes[getAnonId()] = side;
 
   const { error } = await sb.from('tournament').update({ duels }).eq('id', 1);
   if (error) {
-    delete myVotes[duelId];
-    saveVotesToCookie();
-    renderVote();
+    delete myVotes[duelId]; saveVotes(); renderVote();
     showToast('Erreur réseau, réessaie');
     return;
   }
   showToast('Vote enregistré 🎉');
 }
 
-// ── BRACKET ───────────────────────
+// ── BRACKET ───────────────────────────────────
 function renderBracket() {
   const spin = document.getElementById('bracket-spin');
   const body = document.getElementById('bracket-body');
@@ -735,12 +416,12 @@ function renderBracket() {
       const ws = winnerSide(duel);
       html += `<div class="br-pair">
         <div class="br-entry ${ws==='a'?'winner':''} ${duel.a?'':'empty'}">
-          ${duel.a?.url ? `<img src="${x(duel.a.url)}" alt="">` : ''}
-          <span class="br-name">${duel.a ? x(duel.a.name) : '?'}</span>
+          ${duel.a?.url?`<img src="${x(duel.a.url)}" alt="">`:''}
+          <span class="br-name">${duel.a?x(duel.a.name):'?'}</span>
         </div>
         <div class="br-entry ${ws==='b'?'winner':''} ${duel.b?'':'empty'}">
-          ${duel.b?.url ? `<img src="${x(duel.b.url)}" alt="">` : ''}
-          <span class="br-name">${duel.b ? x(duel.b.name) : '?'}</span>
+          ${duel.b?.url?`<img src="${x(duel.b.url)}" alt="">`:''}
+          <span class="br-name">${duel.b?x(duel.b.name):'?'}</span>
         </div>
       </div>`;
     });
@@ -750,7 +431,7 @@ function renderBracket() {
   body.innerHTML = html;
 }
 
-// ── ADMIN ─────────────────────────
+// ── ADMIN ─────────────────────────────────────
 function renderAdmin() {
   const body = document.getElementById('admin-body');
 
@@ -760,7 +441,7 @@ function renderAdmin() {
       <p>Entre le mot de passe pour accéder au panneau d'administration.</p>
       <input class="input-field" type="password" id="admin-pwd" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')checkAdmin()">
       <button class="btn btn-red" style="width:100%;justify-content:center" onclick="checkAdmin()">Accéder</button>
-      <p id="admin-pwd-err" style="color:#E8230A;font-size:.78rem;margin-top:10px"></p>
+      <p id="admin-err" style="color:var(--red);font-size:.78rem;margin-top:10px;min-height:18px"></p>
     </div>`;
     return;
   }
@@ -769,7 +450,6 @@ function renderAdmin() {
   const phase = ts?.phase;
   const r = ts?.current_round || 0;
   const duels = ts?.duels || [];
-
   const participants = new Set();
   let totalV = 0;
   duels.forEach(d => Object.keys(d.votes||{}).forEach(uid => { participants.add(uid); totalV++; }));
@@ -800,26 +480,21 @@ function renderAdmin() {
   // Contrôle
   html += `<div class="admin-card"><h3>Contrôle du tournoi</h3>`;
   if (!phase) {
-    html += `<p style="font-size:.83rem;color:var(--muted);margin-bottom:16px">
-      Upload tes photos puis lance le tournoi. Les duels du premier tour seront générés aléatoirement.
-    </p>
-    <button class="btn btn-red" onclick="startTournament()" ${photos.length<4?'disabled':''}>
-      Lancer le tournoi (${photos.length} photos)
-    </button>
+    html += `<p style="font-size:.83rem;color:var(--muted);margin-bottom:16px">Upload tes photos puis lance le tournoi. Les duels seront générés aléatoirement.</p>
+    <button class="btn btn-red" onclick="startTournament()" ${photos.length<4?'disabled':''}>Lancer le tournoi (${photos.length} photos)</button>
     ${photos.length<4?'<p style="font-size:.75rem;color:var(--red);margin-top:8px">Minimum 4 photos.</p>':''}`;
-
   } else if (phase === 'voting') {
     html += `<div class="stats-row">
       <div class="stat-box"><div class="num">${participants.size}</div><div class="lbl">Votants</div></div>
       <div class="stat-box"><div class="num">${totalV}</div><div class="lbl">Votes</div></div>
       <div class="stat-box"><div class="num">${duels.filter(d=>totalVotes(d)>0).length}/${duels.length}</div><div class="lbl">Duels actifs</div></div>
     </div>
-    <p style="font-size:.83rem;color:var(--muted);margin-bottom:16px">Tour en cours : <strong>${ROUNDS[r]||'Tour '+(r+1)}</strong>. En cas d'égalité, le premier dossard (A) passe.</p>
-    <button class="btn btn-dark" onclick="nextRound()">Valider le tour et passer au suivant</button>
+    <p style="font-size:.83rem;color:var(--muted);margin-bottom:16px">Tour : <strong>${ROUNDS[r]||'Tour '+(r+1)}</strong>. Égalité → le dossard A passe.</p>
+    <button class="btn btn-dark" style="margin-bottom:14px" onclick="nextRound()">Valider le tour et passer au suivant</button>
     <div class="results-list">`;
     duels.forEach(d => {
-      const va = votesFor(d,'a'), vb = votesFor(d,'b');
-      const ws = va===vb ? null : (va>vb?'a':'b');
+      const va=votesFor(d,'a'), vb=votesFor(d,'b');
+      const ws=va===vb?null:(va>vb?'a':'b');
       html += `<div class="result-row">
         ${d.a?.url?`<img src="${x(d.a.url)}" alt="">`:''}
         <span class="rn">${x(d.a?.name)}</span>
@@ -832,15 +507,14 @@ function renderAdmin() {
       </div>`;
     });
     html += `</div>`;
-
   } else if (phase === 'done') {
-    html += `<p style="font-size:.83rem;color:var(--muted);margin-bottom:16px">🏆 Tournoi terminé ! Champion : <strong>${x(ts.champion?.name)}</strong></p>`;
+    html += `<p style="font-size:.83rem;color:var(--muted);margin-bottom:16px">🏆 Terminé ! Champion : <strong>${x(ts.champion?.name)}</strong></p>`;
   }
   html += `</div>`;
 
   if (phase) {
     html += `<div class="admin-card">
-      <h3 style="color:#E8230A">Zone danger</h3>
+      <h3 style="color:var(--red)">Zone danger</h3>
       <p style="font-size:.78rem;color:var(--muted);margin-bottom:12px">Remet le tournoi à zéro. Les photos sont conservées.</p>
       <button class="btn btn-ghost" onclick="resetTournament()">Réinitialiser le tournoi</button>
     </div>`;
@@ -850,47 +524,57 @@ function renderAdmin() {
   body.innerHTML = html;
 }
 
-function checkAdmin() {
-  const val = document.getElementById('admin-pwd')?.value;
-  if (val === ADMIN_PASSWORD) {
-    adminUnlocked = true;
-    sessionStorage.setItem('admin', ADMIN_PASSWORD);
-    document.getElementById('admin-nav-btn').style.display = '';
-    renderAdmin();
-  } else {
-    document.getElementById('admin-pwd-err').textContent = 'Mot de passe incorrect.';
+async function checkAdmin() {
+  const pwd = document.getElementById('admin-pwd')?.value;
+  const errEl = document.getElementById('admin-err');
+  if (!pwd) return;
+  if (errEl) errEl.textContent = 'Vérification…';
+
+  try {
+    const res = await fetch('/api/admin-auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pwd })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      adminUnlocked = true;
+      sessionStorage.setItem('adminOk', '1');
+      document.getElementById('admin-nav-btn').style.display = '';
+      renderAdmin();
+    } else {
+      if (errEl) errEl.textContent = 'Mot de passe incorrect.';
+    }
+  } catch(e) {
+    if (errEl) errEl.textContent = 'Erreur réseau.';
   }
 }
 
-// ── ADMIN ACTIONS ─────────────────
+// ── ADMIN ACTIONS ─────────────────────────────
 async function handleUpload(evt) {
   const files = [...evt.target.files];
   if (!files.length) return;
   const existing = ts?.photos || [];
-  const slots = 64 - existing.length;
-  const toUpload = files.slice(0, slots);
-  if (toUpload.length < files.length) showToast(`Max 64 — seules ${toUpload.length} uploadées`);
+  const toUpload = files.slice(0, 64 - existing.length);
+  if (toUpload.length < files.length) showToast(`Max 64 — ${toUpload.length} uploadées`);
   showToast(`Upload de ${toUpload.length} photo(s)…`);
-
   const newPhotos = [...existing];
   for (const file of toUpload) {
     const ext = file.name.split('.').pop();
     const path = `photos/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
     const { error } = await sb.storage.from('dossards').upload(path, file);
-    if (error) { showToast('Erreur upload : ' + error.message); continue; }
+    if (error) { showToast('Erreur : ' + error.message); continue; }
     const { data: { publicUrl } } = sb.storage.from('dossards').getPublicUrl(path);
     newPhotos.push({ url: publicUrl, name: file.name.replace(/\.[^.]+$/,''), path });
   }
-
   await sb.from('tournament').update({ photos: newPhotos }).eq('id', 1);
   showToast('Photos enregistrées ✓');
-  await loadTournament();
-  renderAdmin();
+  await loadTournament(); renderAdmin();
 }
 
 async function deletePhoto(i) {
   const photos = [...(ts?.photos||[])];
-  const p = photos.splice(i, 1)[0];
+  const p = photos.splice(i,1)[0];
   if (p?.path) await sb.storage.from('dossards').remove([p.path]);
   await sb.from('tournament').update({ photos }).eq('id', 1);
   showToast('Photo supprimée');
@@ -898,82 +582,60 @@ async function deletePhoto(i) {
 }
 
 function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length-1; i>0; i--) {
-    const j = Math.floor(Math.random()*(i+1));
-    [a[i],a[j]] = [a[j],a[i]];
-  }
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
   return a;
 }
 
 async function startTournament() {
-  const photos = ts?.photos || [];
-  if (photos.length < 4) return;
+  const photos = ts?.photos||[];
+  if (photos.length<4) return;
   const shuffled = shuffle(photos);
   const duels = [];
-  for (let i = 0; i < shuffled.length-1; i+=2)
-    duels.push({ id: 'd'+Date.now()+i, a: shuffled[i], b: shuffled[i+1], votes: {} });
+  for(let i=0;i<shuffled.length-1;i+=2)
+    duels.push({id:'d'+Date.now()+i, a:shuffled[i], b:shuffled[i+1], votes:{}});
   const brackets = [JSON.parse(JSON.stringify(duels))];
-  await sb.from('tournament').update({ phase:'voting', current_round:0, duels, brackets, champion:null }).eq('id',1);
-  myVotes = {}; saveVotesToCookie();
+  await sb.from('tournament').update({phase:'voting',current_round:0,duels,brackets,champion:null}).eq('id',1);
+  myVotes={}; saveVotes();
   showToast('Tournoi lancé 🚀');
   await loadTournament(); renderAdmin();
 }
 
 async function nextRound() {
-  if (ts?.phase !== 'voting') return;
-  const duels = ts.duels || [];
-  const winners = duels.map(d => votesFor(d,'a') >= votesFor(d,'b') ? d.a : d.b);
-
-  if (winners.length <= 1) {
-    await sb.from('tournament').update({ phase:'done', champion: winners[0]||null }).eq('id',1);
+  if (ts?.phase!=='voting') return;
+  const duels = ts.duels||[];
+  const winners = duels.map(d => votesFor(d,'a')>=votesFor(d,'b')?d.a:d.b);
+  if (winners.length<=1) {
+    await sb.from('tournament').update({phase:'done',champion:winners[0]||null}).eq('id',1);
     showToast('🏆 Champion couronné !');
     await loadTournament(); renderAdmin(); return;
   }
-
-  const nextDuels = [];
-  for (let i = 0; i < winners.length-1; i+=2)
-    nextDuels.push({ id:'d'+Date.now()+i, a:winners[i], b:winners[i+1]||winners[i], votes:{} });
-
-  const nr = (ts.current_round||0) + 1;
-  const brackets = [...(ts.brackets||[]), JSON.parse(JSON.stringify(nextDuels))];
-  await sb.from('tournament').update({ phase:'voting', current_round:nr, duels:nextDuels, brackets }).eq('id',1);
-  myVotes = {}; saveVotesToCookie();
+  const nextDuels=[];
+  for(let i=0;i<winners.length-1;i+=2)
+    nextDuels.push({id:'d'+Date.now()+i,a:winners[i],b:winners[i+1]||winners[i],votes:{}});
+  const nr=(ts.current_round||0)+1;
+  const brackets=[...(ts.brackets||[]),JSON.parse(JSON.stringify(nextDuels))];
+  await sb.from('tournament').update({phase:'voting',current_round:nr,duels:nextDuels,brackets}).eq('id',1);
+  myVotes={}; saveVotes();
   showToast(`Tour ${nr+1} lancé !`);
   await loadTournament(); renderAdmin();
 }
 
 async function resetTournament() {
-  if (!confirm('Réinitialiser ? (photos conservées)')) return;
-  await sb.from('tournament').update({ phase:null, current_round:0, duels:[], brackets:[], champion:null }).eq('id',1);
-  myVotes = {}; saveVotesToCookie();
-  showToast('Tournoi réinitialisé');
+  if(!confirm('Réinitialiser ? (photos conservées)')) return;
+  await sb.from('tournament').update({phase:null,current_round:0,duels:[],brackets:[],champion:null}).eq('id',1);
+  myVotes={}; saveVotes();
+  showToast('Réinitialisé');
   await loadTournament(); renderAdmin();
 }
 
-// ── HELPERS ───────────────────────
-function votesFor(d, side) {
-  return Object.values(d.votes||{}).filter(v=>v===side).length;
-}
-function totalVotes(d) { return votesFor(d,'a')+votesFor(d,'b'); }
-function winnerSide(d) {
-  const va=votesFor(d,'a'), vb=votesFor(d,'b');
-  if (!va&&!vb) return null;
-  if (va===vb) return null;
-  return va>vb?'a':'b';
-}
-function x(s) {
-  if (!s) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+// ── HELPERS ───────────────────────────────────
+function votesFor(d,side){return Object.values(d.votes||{}).filter(v=>v===side).length;}
+function totalVotes(d){return votesFor(d,'a')+votesFor(d,'b');}
+function winnerSide(d){const va=votesFor(d,'a'),vb=votesFor(d,'b');if(!va&&!vb)return null;if(va===vb)return null;return va>vb?'a':'b';}
+function x(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 let toastT;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastT);
-  toastT = setTimeout(()=>t.classList.remove('show'), 3200);
-}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),3200);}
 </script>
 </body>
 </html>
