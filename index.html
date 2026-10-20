@@ -195,7 +195,7 @@ main { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
 <nav>
   <button class="active" onclick="showTab('vote',this)">Voter</button>
   <button onclick="showTab('bracket',this)">Bracket</button>
-  <button id="admin-nav-btn" onclick="showTab('admin',this)" style="display:none">Admin</button>
+  <button id="admin-nav-btn" onclick="showTab('admin',this)">Admin</button>
 </nav>
 
 <main>
@@ -230,7 +230,6 @@ let currentTab = 'vote';
 (async () => {
   loadVotesFromStorage();
   adminUnlocked = sessionStorage.getItem('adminOk') === '1';
-  if (adminUnlocked) document.getElementById('admin-nav-btn').style.display = '';
   await loadTournament();
   subscribeRealtime();
 })();
@@ -540,7 +539,6 @@ async function checkAdmin() {
     if (data.ok) {
       adminUnlocked = true;
       sessionStorage.setItem('adminOk', '1');
-      document.getElementById('admin-nav-btn').style.display = '';
       renderAdmin();
     } else {
       if (errEl) errEl.textContent = 'Mot de passe incorrect.';
